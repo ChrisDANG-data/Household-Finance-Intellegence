@@ -95,6 +95,9 @@ export class DocumentRepository {
         },
       });
 
+      // Obligations are extracted on demand via /api/documents/extraction
+      // after the user reviews and confirms in the UI.
+
       return serializeDocument(updated);
     } catch (error) {
       const message =

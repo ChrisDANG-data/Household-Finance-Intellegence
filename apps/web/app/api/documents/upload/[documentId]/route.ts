@@ -15,3 +15,15 @@ export async function GET(
     return jsonSuccess({ document });
   });
 }
+
+/** POST — re-run text extraction (useful for scanned PDFs after OCR upgrade) */
+export async function POST(
+  _request: Request,
+  context: { params: Promise<{ documentId: string }> },
+) {
+  return withApiHandler(async () => {
+    const { documentId } = await context.params;
+    const document = await documentRepository.runExtraction(documentId);
+    return jsonSuccess({ document });
+  });
+}

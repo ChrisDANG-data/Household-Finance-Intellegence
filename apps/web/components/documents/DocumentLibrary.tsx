@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DocumentReviewButton } from "@/components/documents/DocumentReviewButton";
 import type { SerializedDocument } from "@/lib/serializers";
 
 function statusVariant(
@@ -65,6 +66,13 @@ export function DocumentLibrary({ documents }: DocumentLibraryProps) {
                 {doc.extractionStatus}
               </Badge>
             </div>
+            {doc.extractedText ? (
+              <DocumentReviewButton
+                documentId={doc.id}
+                filename={doc.filename}
+                hasExtractedText
+              />
+            ) : null}
             {doc.extractionError ? (
               <p className="text-xs text-destructive">{doc.extractionError}</p>
             ) : null}

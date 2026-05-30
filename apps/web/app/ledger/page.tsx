@@ -1,4 +1,5 @@
 import { EngineModuleLayout } from "@/components/EngineModuleLayout";
+import { FinancialEventForm } from "@/components/ledger/FinancialEventForm";
 import { ObligationDashboard } from "@/components/ledger/ObligationDashboard";
 import { DbSetupNotice } from "@/components/ui/DbSetupNotice";
 import { currentUtcMonth } from "@/services/financial-state/dates";
@@ -32,17 +33,28 @@ export default async function LedgerEnginePage() {
 
   return (
     <EngineModuleLayout
-      title="Financial obligations"
-      subtitle="Create and edit obligations stored in PostgreSQL. Monthly totals use the deterministic projection engine."
+      wide
+      title="Financial Ledger"
+      subtitle="Manage income and expenses. Add financial events manually or review obligations from uploaded documents."
     >
       {dbError ? (
         <DbSetupNotice message={dbError} />
       ) : (
-        <ObligationDashboard
-          initialObligations={obligations}
-          initialSummary={summary}
-          month={month}
-        />
+        <div className="space-y-10">
+          <div>
+            <h2 className="mb-4 text-lg font-semibold tracking-tight">
+              Add Income / Expense
+            </h2>
+            <FinancialEventForm />
+          </div>
+          <div className="border-t border-border pt-8">
+            <ObligationDashboard
+              initialObligations={obligations}
+              initialSummary={summary}
+              month={month}
+            />
+          </div>
+        </div>
       )}
     </EngineModuleLayout>
   );

@@ -2,50 +2,46 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface EngineModuleLayoutProps {
   title: string;
   subtitle: string;
   children: React.ReactNode;
+  wide?: boolean;
 }
 
 export function EngineModuleLayout({
   title,
   subtitle,
   children,
+  wide = false,
 }: EngineModuleLayoutProps) {
   return (
-    <main className="mx-auto flex min-h-full max-w-2xl flex-col gap-8 px-6 py-12">
-      <div>
+    <div
+      className={cn(
+        "mx-auto px-4 py-10 sm:px-6 sm:py-12",
+        wide ? "max-w-6xl" : "max-w-3xl",
+      )}
+    >
+      <div className="mb-8">
         <Button
           variant="ghost"
           size="sm"
-          className="mb-4 -ml-2"
+          className="-ml-2 mb-4 text-muted-foreground"
           render={<Link href="/" />}
           nativeButton={false}
         >
           <ArrowLeft className="size-4" />
-          System overview
+          Home
         </Button>
-        <p className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
+        <p className="text-xs font-medium uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
           Engine module
         </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">{title}</h1>
-        <p className="mt-2 text-muted-foreground">{subtitle}</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight">{title}</h1>
+        <p className="mt-2 max-w-2xl text-muted-foreground">{subtitle}</p>
       </div>
       {children}
-      <div className="flex flex-wrap gap-3 border-t border-border pt-6">
-        <Button render={<Link href="/scenario" />} nativeButton={false}>
-          Open scenario chat
-        </Button>
-        <Button
-          variant="outline"
-          render={<Link href="/" />}
-          nativeButton={false}
-        >
-          Four-engine overview
-        </Button>
-      </div>
-    </main>
+    </div>
   );
 }

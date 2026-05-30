@@ -5,7 +5,14 @@ import path from "node:path";
 const monorepoRoot = path.resolve(__dirname, "../..");
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pdf-parse", "tesseract.js"],
+  serverExternalPackages: [
+    "pdf-parse",
+    "tesseract.js",
+    "@xenova/transformers",
+    "onnxruntime-node",
+    "mupdf",
+    "ffmpeg-static",
+  ],
   turbopack: {
     root: monorepoRoot,
   },

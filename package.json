@@ -24,5 +24,10 @@
     "db:push": "npm run db:push --workspace=web",
     "db:studio": "npm run db:studio --workspace=web",
     "test": "npm run test --workspace=web"
+  },
+  "dependencies": {
+    "@img/sharp-win32-x64": "^0.34.5",
+    "ffmpeg-static": "^5.2.0",
+    "sharp": "^0.34.5"
   }
 }

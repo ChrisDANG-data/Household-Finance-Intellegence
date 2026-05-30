@@ -158,10 +158,13 @@ describe("Financial State Engine — deterministic simulation harness", () => {
   describe("Test E — net cash flow sanity check", () => {
     const timeline = simulateForecast(state, FORECAST_MONTHS, FORECAST_START_MONTH);
 
-    it("net_cash_flow equals income_total minus expense_total for every month", () => {
+    it("net_cash_flow equals income minus expenses and investments for every month", () => {
       for (const entry of timeline) {
         expect(entry.net_cash_flow).toBe(
-          Math.round((entry.income_total - entry.expense_total) * 100) / 100,
+          Math.round(
+            (entry.income_total - entry.expense_total - entry.investment_total) *
+              100,
+          ) / 100,
         );
       }
     });
@@ -170,9 +173,11 @@ describe("Financial State Engine — deterministic simulation harness", () => {
       for (const entry of timeline) {
         expect(entry.income_total).not.toBeNaN();
         expect(entry.expense_total).not.toBeNaN();
+        expect(entry.investment_total).not.toBeNaN();
         expect(entry.net_cash_flow).not.toBeNaN();
         expect(entry.income_total).toBeGreaterThanOrEqual(0);
         expect(entry.expense_total).toBeGreaterThanOrEqual(0);
+        expect(entry.investment_total).toBeGreaterThanOrEqual(0);
       }
     });
 

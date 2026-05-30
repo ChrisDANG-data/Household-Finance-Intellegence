@@ -4,6 +4,7 @@ import type {
   FinancialEvent,
   FinancialEventFrequency,
   FinancialEventMetadata,
+  FinancialEventOwner,
   FinancialEventType,
 } from "./types";
 
@@ -43,6 +44,10 @@ export function prismaEventToDomain(row: PrismaFinancialEvent): FinancialEvent {
     frequency: row.frequency as FinancialEventFrequency,
     start_date: row.startDate,
     end_date: row.endDate,
+    event_date: (row as Record<string, unknown>).eventDate as Date | null ?? null,
+    account_in: (row as Record<string, unknown>).accountIn as string | null ?? null,
+    account_out: (row as Record<string, unknown>).accountOut as string | null ?? null,
+    owner: row.owner as FinancialEventOwner,
     confidence: row.confidence,
     source_document_id: row.sourceDocumentId,
     metadata: parseEventMetadata(row.metadata),

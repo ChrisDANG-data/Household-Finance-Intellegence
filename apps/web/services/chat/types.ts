@@ -12,6 +12,7 @@ export interface ScenarioChatRequest {
   months?: number;
   forecast_start_month?: string;
   use_llm?: boolean;
+  ai_provider?: "claude" | "gemini";
 }
 
 export interface UserChatMessage {

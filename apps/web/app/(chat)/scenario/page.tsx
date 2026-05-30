@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { Loader2, SendHorizonal, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, FileText, Loader2, SendHorizonal, Sparkles } from "lucide-react";
 
 import { TimelineChart } from "@/components/financial/TimelineChart";
 import { InsightsPanel } from "@/components/scenario/InsightsPanel";
@@ -11,6 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { GoogleVoiceAskButton } from "@/components/ai/GoogleVoiceAskButton";
+import { AiProviderSwitch } from "@/components/ai/AiProviderSwitch";
+import { useAiProvider } from "@/hooks/use-ai-provider";
 import { DEMO_FINANCIAL_CONTEXT } from "@/lib/demo-financial-context";
 import type { SerializedScenarioChatResponse } from "@/lib/serialize-scenario-response";
 import { streamScenarioResponse } from "@/services/chat/scenarioClient";
@@ -20,8 +24,8 @@ import { cn } from "@/lib/utils";
 const SUGGESTED_PROMPTS = [
   "Can I afford a $3000 vacation in August?",
   "What if my income drops by 20%?",
-  "Why is my cash flow negative in March?",
-  "What happens if I buy a car next month?",
+  "What is the termination date for my insurance?",
+  "What are the payment terms in my contract?",
 ];
 
 function createId(): string {
@@ -34,10 +38,12 @@ function AssistantMessageBody({
   message: AssistantChatMessage;
 }) {
   const data = message.response;
+  const isDocumentAnswer =
+    data?.interpretation === "Answer based on your uploaded documents.";
 
   return (
     <div className="space-y-3 text-sm leading-relaxed">
-      {data && (
+      {data && !isDocumentAnswer && (
         <>
           <p className="font-medium">{data.financial_summary}</p>
           <Badge variant="outline" className="capitalize">
@@ -45,7 +51,12 @@ function AssistantMessageBody({
           </Badge>
         </>
       )}
-      <p className="whitespace-pre-wrap">{message.content}</p>
+      {isDocumentAnswer && (
+        <Badge variant="outline" className="text-xs">
+          Document Q&amp;A
+        </Badge>
+      )}
+      <p className="whitespace-pre-wrap font-mono text-xs">{message.content}</p>
       {message.isStreaming && (
         <span className="inline-flex items-center gap-1 text-muted-foreground">
           <Loader2 className="size-3 animate-spin" />
@@ -57,6 +68,7 @@ function AssistantMessageBody({
 }
 
 export default function ScenarioChatPage() {
+  const { provider } = useAiProvider();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: createId(),
@@ -67,6 +79,7 @@ export default function ScenarioChatPage() {
     },
   ]);
   const [input, setInput] = useState("");
+  const [voiceError, setVoiceError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [latestResponse, setLatestResponse] =
     useState<SerializedScenarioChatResponse | null>(null);
@@ -115,7 +128,8 @@ export default function ScenarioChatPage() {
             message: trimmed,
             ...DEMO_FINANCIAL_CONTEXT,
             months: 12,
-            use_llm: false,
+            use_llm: true,
+            ai_provider: provider,
           },
           {
             onStructured: (data) => {
@@ -180,7 +194,7 @@ export default function ScenarioChatPage() {
         scrollToBottom();
       }
     },
-    [isLoading, scrollToBottom],
+    [isLoading, scrollToBottom, provider],
   );
 
   const timeline = latestResponse?.structured_data.timeline ?? [];
@@ -200,15 +214,27 @@ export default function ScenarioChatPage() {
       {/* LEFT — Chat */}
       <section className="flex min-h-0 flex-1 flex-col border-b border-border lg:border-r lg:border-b-0">
         <header className="flex items-center gap-2 border-b border-border px-4 py-3">
+          <Link
+            href="/"
+            className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border"
+          >
+            <ArrowLeft className="size-4" />
+            <span>Home</span>
+          </Link>
           <Sparkles className="size-5 text-primary" />
-          <div>
+          <div className="flex-1">
             <h1 className="text-lg font-semibold tracking-tight">
               Financial advisor
             </h1>
-            <p className="text-xs text-muted-foreground">
-              Powered by deterministic engines + AI explanation
-            </p>
           </div>
+          <AiProviderSwitch compact />
+          <Link
+            href="/documents"
+            className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border"
+          >
+            <FileText className="size-4" />
+            <span>Documents</span>
+          </Link>
         </header>
 
         <ScrollArea className="min-h-0 flex-1">
@@ -259,6 +285,11 @@ export default function ScenarioChatPage() {
               </Button>
             ))}
           </div>
+          {voiceError ? (
+            <p className="mb-2 text-xs text-destructive" role="alert">
+              {voiceError}
+            </p>
+          ) : null}
           <form
             className="flex gap-2"
             onSubmit={(e) => {
@@ -266,10 +297,19 @@ export default function ScenarioChatPage() {
               sendMessage(input);
             }}
           >
+            <GoogleVoiceAskButton
+              disabled={isLoading}
+              showModeLabel
+              onTranscript={(text) => {
+                setInput(text);
+                setVoiceError(null);
+              }}
+              onError={setVoiceError}
+            />
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about affordability, what-if scenarios, or cash flow…"
+              placeholder="Ask about your documents, affordability, or what-if scenarios…"
               className="min-h-[52px] resize-none"
               rows={2}
               disabled={isLoading}
@@ -298,6 +338,28 @@ export default function ScenarioChatPage() {
 
       {/* RIGHT — Intelligence */}
       <aside className="flex w-full shrink-0 flex-col gap-4 overflow-y-auto bg-muted/30 p-4 lg:w-[420px]">
+        <div className="flex gap-2">
+          <Link
+            href="/"
+            className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border"
+          >
+            <ArrowLeft className="size-4" />
+            <span>Home</span>
+          </Link>
+          <Link
+            href="/documents"
+            className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border"
+          >
+            <FileText className="size-4" />
+            <span>Documents</span>
+          </Link>
+          <Link
+            href="/ledger"
+            className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border border-border"
+          >
+            <span>Ledger</span>
+          </Link>
+        </div>
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-medium">

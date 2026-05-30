@@ -12,8 +12,9 @@ interface ExplainBody {
   months?: number;
   start_month?: string;
   user_query?: string;
-  /** Set false to force deterministic text (no Claude call) */
+  /** Set false to force deterministic text (no LLM call) */
   use_llm?: boolean;
+  ai_provider?: "claude" | "gemini";
 }
 
 /** POST — AI Financial Advisor: explain deterministic engine outputs */
@@ -53,7 +54,10 @@ export async function POST(request: Request) {
         risk,
         user_query: body.user_query,
       },
-      { useLlm: body.use_llm !== false },
+      {
+        useLlm: body.use_llm !== false,
+        ai_provider: body.ai_provider,
+      },
     );
 
     return jsonSuccess({

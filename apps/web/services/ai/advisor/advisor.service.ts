@@ -1,7 +1,11 @@
 import type { FinancialRiskReport } from "@/services/financial-state/risk";
 import type { CashFlowRiskLevel } from "@/services/financial-state/state.types";
 
-import { claudeClient } from "./claude-client";
+import {
+  isProviderConfigured,
+  llmComplete,
+  resolveProvider,
+} from "@/services/ai/llm/llm.service";
 import {
   buildUserPrompt,
   FINANCIAL_ADVISOR_SYSTEM_PROMPT,
@@ -147,7 +151,7 @@ export function buildDeterministicAdvice(
  */
 export async function generateFinancialAdvice(
   input: GenerateFinancialAdviceInput,
-  options?: { useLlm?: boolean },
+  options?: { useLlm?: boolean; ai_provider?: GenerateFinancialAdviceInput["ai_provider"] },
 ): Promise<FinancialAdviceResponse> {
   const payload = serializeAdvisorPayload(
     input.state,
@@ -157,23 +161,35 @@ export async function generateFinancialAdvice(
   );
 
   const useLlm = options?.useLlm ?? true;
+  const provider = resolveProvider(
+    options?.ai_provider ?? input.ai_provider,
+  );
 
-  if (!useLlm || !process.env.ANTHROPIC_API_KEY) {
+  if (!useLlm || !isProviderConfigured(provider)) {
     return buildDeterministicAdvice(input);
   }
 
   try {
-    const { text } = await claudeClient.complete({
+    const { text } = await llmComplete({
       system: FINANCIAL_ADVISOR_SYSTEM_PROMPT,
       user: buildUserPrompt(payload),
+      maxTokens: 500,
+      provider,
+      caller: "financial-advisor",
     });
 
     const parsed = parseJsonFromLlm(text);
     return parseAdviceResponse(parsed, input.risk);
   } catch (error) {
+    const message = error instanceof Error ? error.message : "";
     if (
       error instanceof Error &&
-      (error.message.includes("ANTHROPIC_API_KEY") ||
+      (message.includes("API_KEY") ||
+        message.includes("not configured") ||
+        message.includes("429") ||
+        message.includes("rate limit") ||
+        message.includes("LLM_REQUEST_FAILED") ||
+        message.includes("Gemini API") ||
         error.name === "SyntaxError")
     ) {
       return buildDeterministicAdvice(input);

@@ -19,6 +19,7 @@ import type {
 import type {
   FinancialEvent,
   FinancialEventMetadata,
+  FinancialEventOwner,
   RawFinancialEvent,
 } from "./types";
 import { AppError } from "@/utils/errors";
@@ -40,6 +41,10 @@ export interface CreateFinancialEventInput {
   frequency: FinancialEventFrequency;
   start_date: string;
   end_date?: string | null;
+  event_date?: string | null;
+  account_in?: string | null;
+  account_out?: string | null;
+  owner?: FinancialEventOwner;
   confidence?: number;
   source_document_id?: string | null;
   metadata?: FinancialEventMetadata;
@@ -193,6 +198,7 @@ export class FinancialStatePersistence {
       frequency: input.frequency,
       start_date: input.start_date,
       end_date: input.end_date,
+      owner: input.owner ?? "partner_a",
       confidence: input.confidence ?? 1,
       source_document_id: input.source_document_id,
       metadata: input.metadata as RawFinancialEvent["metadata"],
@@ -218,6 +224,10 @@ export class FinancialStatePersistence {
         frequency: normalized.frequency as FinancialEventFrequency,
         startDate: normalized.start_date,
         endDate: normalized.end_date ?? null,
+        eventDate: input.event_date ? parseDateOnly(input.event_date, "event_date") : null,
+        accountIn: input.account_in ?? null,
+        accountOut: input.account_out ?? null,
+        owner: normalized.owner,
         confidence: normalized.confidence,
         sourceDocumentId: normalized.source_document_id ?? null,
         metadata: metadataToJson(normalized.metadata),
@@ -260,6 +270,7 @@ export class FinancialStatePersistence {
             ? parseDateOnly(input.end_date, "end_date")
             : null
           : existing.endDate,
+      owner: input.owner ?? (existing.owner as FinancialEventOwner),
       confidence: input.confidence ?? existing.confidence,
       source_document_id:
         input.source_document_id !== undefined
@@ -290,6 +301,12 @@ export class FinancialStatePersistence {
         frequency: normalized.frequency as FinancialEventFrequency,
         startDate: normalized.start_date,
         endDate: normalized.end_date ?? null,
+        ...(input.event_date !== undefined && {
+          eventDate: input.event_date ? parseDateOnly(input.event_date, "event_date") : null,
+        }),
+        ...(input.account_in !== undefined && { accountIn: input.account_in ?? null }),
+        ...(input.account_out !== undefined && { accountOut: input.account_out ?? null }),
+        owner: normalized.owner,
         confidence: normalized.confidence,
         sourceDocumentId: normalized.source_document_id ?? null,
         metadata: metadataToJson(normalized.metadata),
@@ -329,6 +346,7 @@ export class FinancialStatePersistence {
           frequency: event.frequency as FinancialEventFrequency,
           startDate: event.start_date,
           endDate: event.end_date ?? null,
+          owner: event.owner,
           confidence: event.confidence,
           sourceDocumentId: event.source_document_id ?? null,
           metadata: metadataToJson(event.metadata),

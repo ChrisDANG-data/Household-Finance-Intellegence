@@ -60,6 +60,20 @@ export function isOneTimeInTargetMonth(event: FinancialEvent, month: string): bo
   return isDateInMonth(event.start_date, month);
 }
 
+function monthIndex(month: string): number {
+  const { year, month: m } = parseMonth(month);
+  return year * 12 + (m - 1);
+}
+
+/** Quarterly payments every 3 months from the start month (e.g. Aug → Nov → Feb). */
+export function isQuarterlyPaymentMonth(startDate: Date, month: string): boolean {
+  const startMonth = dateToMonth(startDate);
+  const startIdx = monthIndex(startMonth);
+  const targetIdx = monthIndex(month);
+  if (targetIdx < startIdx) return false;
+  return (targetIdx - startIdx) % 3 === 0;
+}
+
 /**
  * Whether this event contributes cash flow in the target month (frequency expansion).
  */
@@ -73,6 +87,8 @@ export function frequencyAppliesInMonth(event: FinancialEvent, month: string): b
       return isOneTimeInTargetMonth(event, month);
     case "yearly":
       return isYearlyAnniversaryMonth(event.start_date, month);
+    case "quarterly":
+      return isQuarterlyPaymentMonth(event.start_date, month);
     case "monthly":
     case "weekly":
       return true;
@@ -111,7 +127,14 @@ export function shouldListAsActiveEvent(
   if (event.frequency === "yearly") {
     return isYearlyAnniversaryMonth(event.start_date, month);
   }
+  if (event.frequency === "quarterly") {
+    return isQuarterlyPaymentMonth(event.start_date, month);
+  }
   return true;
+}
+
+function isInvestmentEvent(event: FinancialEvent): boolean {
+  return event.type === "investment";
 }
 
 function isExpenseEvent(event: FinancialEvent): boolean {
@@ -122,6 +145,10 @@ function isExpenseEvent(event: FinancialEvent): boolean {
   );
 }
 
+function isOutflowEvent(event: FinancialEvent): boolean {
+  return isExpenseEvent(event) || isInvestmentEvent(event);
+}
+
 /**
  * Deterministic monthly cash flow projection for a single month.
  * Does not mutate state. No AI, no database.
@@ -129,11 +156,13 @@ function isExpenseEvent(event: FinancialEvent): boolean {
 export function projectMonth(
   state: FinancialState,
   month: string,
+  openingBalance: number = 0,
 ): FinancialTimelineState {
   assertMonthFormat(month);
 
   let income_total = 0;
   let expense_total = 0;
+  let investment_total = 0;
   const active_events: FinancialEvent[] = [];
 
   for (const event of state.events) {
@@ -146,6 +175,8 @@ export function projectMonth(
 
     if (isIncomeEvent(event)) {
       income_total += amount;
+    } else if (isInvestmentEvent(event)) {
+      investment_total += amount;
     } else if (isExpenseEvent(event)) {
       expense_total += amount;
     }
@@ -153,18 +184,26 @@ export function projectMonth(
 
   income_total = roundMoney(income_total);
   expense_total = roundMoney(expense_total);
+  investment_total = roundMoney(investment_total);
+  const net_cash_flow = roundMoney(
+    income_total - expense_total - investment_total,
+  );
 
   return {
     month,
     income_total,
     expense_total,
-    net_cash_flow: roundMoney(income_total - expense_total),
+    investment_total,
+    net_cash_flow,
+    opening_balance: roundMoney(openingBalance),
+    closing_balance: roundMoney(openingBalance + net_cash_flow),
     active_events,
   };
 }
 
 /**
  * Sequential monthly projections from the current UTC month (or custom start).
+ * Tracks rolling balance starting from state.current_cash.
  */
 export function simulateForecast(
   state: FinancialState,
@@ -179,8 +218,12 @@ export function simulateForecast(
   assertMonthFormat(start);
 
   const timeline: FinancialTimelineState[] = [];
+  let balance = state.current_cash;
+
   for (let i = 0; i < months; i++) {
-    timeline.push(projectMonth(state, addMonths(start, i)));
+    const entry = projectMonth(state, addMonths(start, i), balance);
+    timeline.push(entry);
+    balance = entry.closing_balance;
   }
   return timeline;
 }
@@ -200,7 +243,9 @@ export function computeDerivedFields(
     referenceMonth,
   );
 
-  const monthly_expenses = timeline.expense_total;
+  const monthly_expenses = roundMoney(
+    timeline.expense_total + timeline.investment_total,
+  );
   const monthly_income_from_events = timeline.income_total;
   const effective_income = Math.max(state.monthly_income, monthly_income_from_events);
 
@@ -214,7 +259,7 @@ export function computeDerivedFields(
   let fixedExpenses = 0;
   let totalExpenses = 0;
   for (const event of state.events) {
-    if (!isExpenseEvent(event)) continue;
+    if (!isOutflowEvent(event)) continue;
     const amount = eventAmountForMonth(event, referenceMonth);
     totalExpenses += amount;
     if (event.metadata.is_fixed) {

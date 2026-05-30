@@ -1,14 +1,16 @@
 // Household Financial Intelligence — Prisma schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
   // npm workspaces hoists @prisma/client to repo root — generate beside it
-  output   = "../../../node_modules/.prisma/client"
+  output          = "../../../node_modules/.prisma/client"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 enum ExtractionStatus {
@@ -23,13 +25,21 @@ enum FinancialEventType {
   one_time_expense
   liability
   asset
+  investment
 }
 
 enum FinancialEventFrequency {
   monthly
   weekly
   yearly
+  quarterly
   one_time
+}
+
+enum FinancialEventOwner {
+  partner_a
+  partner_b
+  joint
 }
 
 /// Document Intelligence — uploaded files and extracted raw text
@@ -46,6 +56,7 @@ model Document {
   updatedAt        DateTime         @updatedAt
   obligations      FinancialObligation[]
   financialEvents  FinancialEvent[]
+  chunks           DocumentChunk[]
 
   @@index([createdAt])
 }
@@ -73,6 +84,10 @@ model FinancialEvent {
   frequency        FinancialEventFrequency
   startDate        DateTime                @map("start_date") @db.Date
   endDate          DateTime?               @map("end_date") @db.Date
+  eventDate        DateTime?               @map("event_date") @db.Date
+  accountIn        String?                 @map("account_in")
+  accountOut       String?                 @map("account_out")
+  owner            FinancialEventOwner     @default(partner_a)
   confidence       Float                   @default(1)
   sourceDocumentId String?                 @map("source_document_id")
   metadata         Json                    @default("{}")
@@ -82,6 +97,7 @@ model FinancialEvent {
   sourceDocument   Document?               @relation(fields: [sourceDocumentId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+  @@index([owner])
   @@index([startDate])
   @@index([sourceDocumentId])
   @@map("financial_events")
@@ -105,4 +121,87 @@ model FinancialObligation {
 
   @@index([startDate])
   @@index([sourceDocumentId])
+}
+
+/// Document Intelligence — vector chunks for RAG retrieval
+model DocumentChunk {
+  id         String                      @id @default(cuid())
+  documentId String                      @map("document_id")
+  chunkIndex Int                         @map("chunk_index")
+  content    String                      @db.Text
+  embedding  Unsupported("vector(384)")
+  metadata   Json                        @default("{}")
+  createdAt  DateTime                    @default(now()) @map("created_at")
+  document   Document                    @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("document_chunks")
+}
+
+/// Automation — workflow execution metadata for retries/observability
+model AutomationRun {
+  id            String   @id @default(cuid())
+  workflow      String
+  correlationId String   @map("correlation_id")
+  source        String
+  status        String
+  payload       Json     @default("{}")
+  result        Json?
+  errorMessage  String?  @map("error_message")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([workflow, createdAt])
+  @@index([correlationId])
+  @@map("automation_runs")
+}
+
+/// Integrations — Plaid Link item (server-side access_token only)
+model PlaidItem {
+  id          String   @id @default(cuid())
+  userId      String   @default("default") @map("user_id")
+  itemId      String   @unique @map("item_id")
+  accessToken String   @map("access_token")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("plaid_items")
+}
+
+/// Integrations — Plaid account balance snapshots (separate from forecast)
+model PlaidBalanceHistory {
+  id             String   @id @default(cuid())
+  userId         String   @default("default") @map("user_id")
+  itemId         String   @map("item_id")
+  plaidAccountId String   @map("plaid_account_id")
+  accountName    String   @map("account_name")
+  balance        Decimal  @db.Decimal(14, 2)
+  currency       String   @default("USD")
+  year           Int
+  month          Int
+  snapshotDate   DateTime @map("snapshot_date") @db.Date
+  balanceDelta   Decimal? @map("balance_delta") @db.Decimal(14, 2)
+  syncSource     String   @default("manual") @map("sync_source")
+  correlationId  String?  @map("correlation_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([userId, plaidAccountId, snapshotDate])
+  @@index([userId, year, month])
+  @@index([userId, snapshotDate])
+  @@map("plaid_balance_history")
+}
+
+/// Integrations — Plaid sync idempotency + watermark
+model PlaidSyncCursor {
+  id              String   @id @default(cuid())
+  itemId          String   @unique @map("item_id")
+  cursor          String?
+  lastRunAt       DateTime? @map("last_run_at")
+  lastCorrelation String?   @map("last_correlation")
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@map("plaid_sync_cursors")
 }

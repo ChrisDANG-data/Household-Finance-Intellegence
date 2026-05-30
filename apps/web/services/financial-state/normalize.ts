@@ -5,6 +5,7 @@ import {
   type FinancialEvent,
   type FinancialEventFrequency,
   type FinancialEventMetadata,
+  type FinancialEventOwner,
   type FinancialEventType,
   type RawFinancialEvent,
 } from "./types";
@@ -15,13 +16,21 @@ const VALID_TYPES: FinancialEventType[] = [
   "one_time_expense",
   "liability",
   "asset",
+  "investment",
 ];
 
 const VALID_FREQUENCIES: FinancialEventFrequency[] = [
   "monthly",
   "weekly",
   "yearly",
+  "quarterly",
   "one_time",
+];
+
+const VALID_OWNERS: FinancialEventOwner[] = [
+  "partner_a",
+  "partner_b",
+  "joint",
 ];
 
 const TYPE_ALIASES: Record<string, FinancialEventType> = {
@@ -37,6 +46,7 @@ const TYPE_ALIASES: Record<string, FinancialEventType> = {
   debt: "liability",
   loan: "liability",
   asset: "asset",
+  investment: "investment",
 };
 
 const FREQUENCY_ALIASES: Record<string, FinancialEventFrequency> = {
@@ -47,6 +57,8 @@ const FREQUENCY_ALIASES: Record<string, FinancialEventFrequency> = {
   yearly: "yearly",
   annual: "yearly",
   year: "yearly",
+  quarterly: "quarterly",
+  quarter: "quarterly",
   one_time: "one_time",
   once: "one_time",
   onetime: "one_time",
@@ -161,6 +173,18 @@ function parseAmount(raw: unknown): number | null {
   return Math.round(amount * 100) / 100;
 }
 
+function normalizeOwner(raw: unknown): FinancialEventOwner {
+  if (typeof raw === "string") {
+    const v = raw.trim().toLowerCase().replace(/\s+/g, "_");
+    if (VALID_OWNERS.includes(v as FinancialEventOwner)) {
+      return v as FinancialEventOwner;
+    }
+    if (v === "partnera" || v === "a") return "partner_a";
+    if (v === "partnerb" || v === "b") return "partner_b";
+  }
+  return "partner_a";
+}
+
 function normalizeCurrency(raw: unknown): string {
   if (typeof raw === "string" && raw.trim()) {
     return raw.trim().toUpperCase();
@@ -200,6 +224,7 @@ function normalizeSingleEvent(raw: RawFinancialEvent): FinancialEvent | null {
     frequency,
     start_date,
     end_date: end_date ?? undefined,
+    owner: normalizeOwner(raw.owner),
     confidence: clampConfidence(raw.confidence),
     source_document_id: source_document_id ?? undefined,
     metadata: normalizeMetadata(raw.metadata),

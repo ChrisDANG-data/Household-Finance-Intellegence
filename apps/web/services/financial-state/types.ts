@@ -10,13 +10,29 @@ export type FinancialEventType =
   | "recurring_expense"
   | "one_time_expense"
   | "liability"
-  | "asset";
+  | "asset"
+  | "investment";
 
 export type FinancialEventFrequency =
   | "monthly"
   | "weekly"
   | "yearly"
+  | "quarterly"
   | "one_time";
+
+export type FinancialEventOwner = "partner_a" | "partner_b" | "joint";
+
+export const FINANCIAL_EVENT_OWNERS: FinancialEventOwner[] = [
+  "partner_a",
+  "partner_b",
+  "joint",
+];
+
+export const OWNER_LABELS: Record<FinancialEventOwner, string> = {
+  partner_a: "Partner A",
+  partner_b: "Partner B",
+  joint: "Joint",
+};
 
 export interface FinancialEventMetadata {
   merchant?: string;
@@ -33,6 +49,10 @@ export interface FinancialEvent {
   frequency: FinancialEventFrequency;
   start_date: Date;
   end_date?: Date | null;
+  event_date?: Date | null;
+  account_in?: string | null;
+  account_out?: string | null;
+  owner: FinancialEventOwner;
   confidence: number;
   source_document_id?: string | null;
   metadata: FinancialEventMetadata;
@@ -50,6 +70,10 @@ export interface RawFinancialEvent {
   frequency?: string;
   start_date?: string | Date;
   end_date?: string | Date | null;
+  event_date?: string | Date | null;
+  account_in?: string | null;
+  account_out?: string | null;
+  owner?: string;
   confidence?: number;
   source_document_id?: string | null;
   metadata?: Record<string, unknown>;

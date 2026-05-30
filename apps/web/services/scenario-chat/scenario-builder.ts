@@ -57,6 +57,7 @@ export function addOneTimeExpense(
     frequency: "one_time",
     start_date: monthToStartDate(options.target_month),
     end_date: null,
+    owner: "joint",
     confidence: 1,
     source_document_id: null,
     metadata: {

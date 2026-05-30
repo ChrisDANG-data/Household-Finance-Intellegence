@@ -24,7 +24,7 @@ export function InsightsPanel({ insights, recommendations }: InsightsPanelProps)
                 </h4>
                 <ul className="space-y-2 text-sm">
                   {insights.map((item) => (
-                    <li key={item} className="leading-relaxed">
+                    <li key={item} className="whitespace-pre-wrap font-mono text-xs leading-relaxed">
                       {item}
                     </li>
                   ))}

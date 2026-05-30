@@ -21,8 +21,9 @@ export default async function DocumentsEnginePage() {
 
   return (
     <EngineModuleLayout
+      wide
       title="Document Intelligence"
-      subtitle="Upload PDFs and images. Raw text is extracted and stored for later review and obligation linking."
+      subtitle="Upload PDFs and images. Text is extracted, obligations detected, and content indexed for AI Q&A."
     >
       {dbError ? <DbSetupNotice message={dbError} /> : null}
       <DocumentUploadPanel />

@@ -20,7 +20,10 @@ export interface FinancialTimelineState {
   month: string;
   income_total: number;
   expense_total: number;
+  investment_total: number;
   net_cash_flow: number;
+  opening_balance: number;
+  closing_balance: number;
   active_events: FinancialEvent[];
 }
 

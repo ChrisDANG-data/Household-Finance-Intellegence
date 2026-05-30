@@ -7,6 +7,7 @@ Next.js App Router app for **Household Financial Intelligence**.
 - [Root setup & development](../../README.md#setup--development)
 - [Architecture](../../docs/ARCHITECTURE.md)
 - [Dependencies](../../docs/DEPENDENCIES.md)
+- [Engineering skill (agent standards)](../../.cursor/skills/household-financial-intelligence/SKILL.md)
 - [Environment variables](./.env.example)
 
 ## Quick start

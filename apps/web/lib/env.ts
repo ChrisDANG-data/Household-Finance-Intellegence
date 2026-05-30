@@ -22,7 +22,17 @@ export const env = {
 
   ai: {
     openaiApiKey: () => optionalEnv("OPENAI_API_KEY"),
+    /** OpenRouter key (preferred for Whisper STT when set). */
+    openRouterApiKey: () => optionalEnv("OPENROUTER_API_KEY"),
+    /** Whisper / STT: OPENROUTER_API_KEY if set, else OPENAI_API_KEY. */
+    whisperApiKey: () => {
+      const openRouter = optionalEnv("OPENROUTER_API_KEY");
+      if (openRouter) return openRouter;
+      return optionalEnv("OPENAI_API_KEY");
+    },
     anthropicApiKey: () => optionalEnv("ANTHROPIC_API_KEY"),
+    geminiApiKey: () => optionalEnv("GOOGLE_API_KEY", optionalEnv("GEMINI_API_KEY")),
+    defaultProvider: () => optionalEnv("AI_PROVIDER", "claude"),
   },
 
   upload: {
@@ -35,11 +45,37 @@ export const env = {
   },
 
   vector: {
-    provider: () => optionalEnv("VECTOR_STORE_PROVIDER"),
+    provider: () => optionalEnv("VECTOR_STORE_PROVIDER", "pgvector"),
   },
 
   tts: {
     provider: () => optionalEnv("TTS_PROVIDER"),
+  },
+
+  automation: {
+    webhookToken: () => optionalEnv("AUTOMATION_WEBHOOK_TOKEN"),
+    n8nCallbackUrl: () => optionalEnv("N8N_CALLBACK_URL"),
+    n8nEncryptionKey: () => optionalEnv("N8N_ENCRYPTION_KEY"),
+  },
+
+  plaid: {
+    /** Direct Plaid API (Link token, future item exchange). */
+    clientId: () => optionalEnv("PLAID_CLIENT_ID"),
+    secret: () => optionalEnv("PLAID_SECRET"),
+    environment: (): "sandbox" | "production" =>
+      optionalEnv("PLAID_ENV", "sandbox") === "production"
+        ? "production"
+        : "sandbox",
+    /** OAuth redirect — only set if registered in Plaid dashboard */
+    redirectUri: () => optionalEnv("PLAID_REDIRECT_URI"),
+    /** Optional MCP wrapper for balance sync (separate from Plaid secret). */
+    mcpBaseUrl: () => optionalEnv("PLAID_MCP_BASE_URL"),
+    mcpToken: () => optionalEnv("PLAID_MCP_TOKEN"),
+  },
+
+  langgraph: {
+    orchestratorUrl: () => optionalEnv("LANGGRAPH_URL"),
+    enabled: () => optionalEnv("LANGGRAPH_ENABLED", "false") === "true",
   },
 } as const;
 

@@ -1,4 +1,5 @@
 import type { FinancialAdviceResponse } from "@/services/ai/advisor/types";
+import type { AiProvider } from "@/services/ai/llm/types";
 import type { FinancialRiskReport } from "@/services/financial-state/risk";
 import type { FinancialState } from "@/services/financial-state/state.types";
 import type { FinancialTimelineState } from "@/services/financial-state/state.types";
@@ -56,4 +57,5 @@ export interface HandleScenarioMessageInput {
   months?: number;
   forecast_start_month?: string;
   use_llm?: boolean;
+  ai_provider?: AiProvider;
 }

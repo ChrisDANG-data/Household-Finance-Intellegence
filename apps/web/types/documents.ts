@@ -35,7 +35,7 @@ export interface EmbeddingRecord {
 
 export interface DocumentRagQuery {
   query: string;
-  householdId: string;
+  householdId?: string;
   topK?: number;
   filters?: Record<string, unknown>;
 }
@@ -47,4 +47,28 @@ export interface DocumentRagResult {
     documentId: string;
     metadata?: Record<string, unknown>;
   }>;
+}
+
+/** Obligation proposed by document extraction, editable before ledger insert. */
+export interface ReviewableObligation {
+  name: string;
+  category: string;
+  amount: number;
+  currency: string;
+  frequency: string;
+  startDate: string;
+  endDate?: string | null;
+  notes?: string | null;
+}
+
+export interface ExtractionPreviewResult {
+  documentId: string;
+  obligations: ReviewableObligation[];
+  message: string;
+}
+
+export interface ExtractionConfirmResult {
+  documentId: string;
+  savedToDb: number;
+  message: string;
 }

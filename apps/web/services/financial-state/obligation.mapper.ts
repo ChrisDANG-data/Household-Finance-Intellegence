@@ -6,6 +6,7 @@ const FREQUENCIES: FinancialEventFrequency[] = [
   "monthly",
   "weekly",
   "yearly",
+  "quarterly",
   "one_time",
 ];
 

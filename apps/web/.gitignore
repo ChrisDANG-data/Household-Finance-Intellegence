@@ -23,6 +23,9 @@
 # local uploads
 .data/
 
+# LLM call logs (may contain prompts/responses)
+/logs/
+
 # misc
 .DS_Store
 *.pem

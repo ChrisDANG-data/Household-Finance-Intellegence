@@ -1,6 +1,8 @@
 import { handleScenarioMessage } from "@/services/scenario-chat";
 import { financialStateEngine } from "@/services/financial-state";
+import { financialStatePersistence } from "@/services/financial-state/financial-state.persistence";
 import type { RawFinancialEvent } from "@/types/financial-state";
+import type { FinancialState } from "@/services/financial-state/state.types";
 import { jsonError, jsonSuccess } from "@/utils/api-response";
 import { AppError, toAppError } from "@/utils/errors";
 
@@ -17,16 +19,40 @@ interface ScenarioChatBody {
   forecast_start_month?: string;
   use_llm?: boolean;
   stream?: boolean;
+  ai_provider?: "claude" | "gemini";
 }
 
-async function runScenarioChat(body: ScenarioChatBody) {
-  const financial_state = financialStateEngine.createState({
+async function resolveFinancialState(body: ScenarioChatBody): Promise<FinancialState> {
+  if (body.events.length > 0) {
+    return financialStateEngine.createState({
+      user_id: body.user_id,
+      current_cash: body.current_cash,
+      monthly_income: body.monthly_income,
+      events: body.events,
+      referenceMonth: body.forecast_start_month,
+    });
+  }
+
+  const persisted = await financialStatePersistence.loadState(
+    body.user_id,
+    body.forecast_start_month,
+  );
+
+  if (persisted.events.length > 0 || persisted.current_cash > 0) {
+    return persisted;
+  }
+
+  return financialStateEngine.createState({
     user_id: body.user_id,
     current_cash: body.current_cash,
     monthly_income: body.monthly_income,
     events: body.events,
     referenceMonth: body.forecast_start_month,
   });
+}
+
+async function runScenarioChat(body: ScenarioChatBody) {
+  const financial_state = await resolveFinancialState(body);
 
   return handleScenarioMessage({
     message: body.message,
@@ -35,6 +61,7 @@ async function runScenarioChat(body: ScenarioChatBody) {
     months: body.months,
     forecast_start_month: body.forecast_start_month,
     use_llm: body.use_llm,
+    ai_provider: body.ai_provider,
   });
 }
 

@@ -310,7 +310,7 @@ export function computeRiskSignals(
 
   // Overcommitment: expenses exceed income in any month
   const overcommitted = timeline.filter(
-    (m) => m.expense_total > m.income_total,
+    (m) => m.expense_total + m.investment_total > m.income_total,
   );
   if (overcommitted.length > 0 && negativeFlowMonths.length === 0) {
     insights.push(
