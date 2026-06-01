@@ -28,6 +28,7 @@ export function obligationToFinancialEvent(
     frequency: obligation.frequency as FinancialEventFrequency,
     start_date: obligation.startDate,
     end_date: obligation.endDate,
+    owner: "joint",
     confidence: 1,
     source_document_id: obligation.sourceDocumentId,
     metadata: {

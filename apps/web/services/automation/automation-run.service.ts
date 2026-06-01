@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { prisma } from "@/lib/prisma";
 
-export type AutomationStatus = "queued" | "success" | "failed";
+export type AutomationStatus = "queued" | "success" | "failed" | "skipped";
 
 export interface RecordAutomationRunInput {
   workflow: string;

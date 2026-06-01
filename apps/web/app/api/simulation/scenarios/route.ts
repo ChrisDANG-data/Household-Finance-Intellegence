@@ -41,6 +41,7 @@ function applyAdjustments(
           frequency: (adj.frequency as FinancialEvent["frequency"]) ?? "monthly",
           start_date: new Date(),
           end_date: null,
+          owner: "joint",
           confidence: 1,
           source_document_id: null,
           metadata: { is_fixed: false },

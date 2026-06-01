@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         state,
         timeline,
         risk,
-        user_query: body.user_query,
+        user_query: body.user_query ?? "",
       },
       {
         useLlm: body.use_llm !== false,

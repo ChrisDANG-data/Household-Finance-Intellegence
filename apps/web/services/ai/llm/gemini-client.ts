@@ -100,6 +100,10 @@ export class GeminiClient {
         finishReason?: string;
       }>;
       promptFeedback?: { blockReason?: string };
+      usageMetadata?: {
+        promptTokenCount?: number;
+        candidatesTokenCount?: number;
+      };
     };
 
     const text =

@@ -133,7 +133,7 @@ export default function HomePage() {
         </div>
         <ul className="grid list-none gap-5 p-0 sm:grid-cols-2 lg:grid-cols-3">
           {ENGINES.map((engine) => (
-            <li key={engine.name} className={engine.featured ? "sm:col-span-2 lg:col-span-1" : ""}>
+            <li key={engine.name} className={"featured" in engine && engine.featured ? "sm:col-span-2 lg:col-span-1" : ""}>
               <EngineModuleCard {...engine} />
             </li>
           ))}

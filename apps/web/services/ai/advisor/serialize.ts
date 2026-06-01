@@ -39,6 +39,6 @@ export function serializeAdvisorPayload(
       active_event_categories: month.active_events.map((e) => e.category),
     })),
     risk,
-    user_query,
+    user_query: user_query ?? "",
   };
 }

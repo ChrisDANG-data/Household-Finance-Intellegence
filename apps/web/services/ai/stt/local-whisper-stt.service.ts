@@ -68,20 +68,35 @@ async function convertToWavWithFfmpeg(
   });
 }
 
+type ParsedWaveFile = WaveFile & {
+  fmt: { numChannels: number };
+  toMono(): void;
+  toBitDepth(bitDepth: string): void;
+  toSampleRate(rate: number): void;
+  getSamples(
+    interleaved: boolean,
+    indices?: number[],
+  ): Float32Array | Float32Array[];
+};
+
 /** Load 16 kHz mono Float32 samples from a WAV file (Node — no AudioContext). */
 function loadWavSamples(wavBuffer: Buffer): Float32Array {
-  const wav = new WaveFile(wavBuffer);
+  const wav = new WaveFile(wavBuffer) as ParsedWaveFile;
   if (wav.fmt.numChannels > 1) {
     wav.toMono();
   }
   wav.toBitDepth("32f");
   wav.toSampleRate(16000);
 
-  let audioData = wav.getSamples(false) as Float32Array | Float32Array[];
+  let audioData = wav.getSamples(false);
   if (Array.isArray(audioData)) {
     audioData = audioData[0];
   }
-  return normalizeAudio(audioData);
+  const samples =
+    audioData instanceof Float32Array
+      ? audioData
+      : new Float32Array(audioData as ArrayLike<number>);
+  return normalizeAudio(samples);
 }
 
 function normalizeAudio(samples: Float32Array): Float32Array {

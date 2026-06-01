@@ -29,12 +29,21 @@ export interface GenerateFinancialAdviceInput {
 }
 
 export interface SerializedAdvisorPayload {
+  state: {
+    user_id: string;
+    current_cash: number;
+    monthly_income: number;
+    computed: FinancialState["computed"];
+    events: Record<string, unknown>[];
+  };
+  timeline: {
+    month: string;
+    income_total: number;
+    expense_total: number;
+    net_cash_flow: number;
+    active_event_ids: string[];
+    active_event_categories: string[];
+  }[];
+  risk: FinancialRiskReport;
   user_query: string;
-  current_cash: number;
-  monthly_income: number;
-  risk_level: string;
-  timeline_summary: string;
-  insights: string[];
-  stress_months: string[];
-  metrics: FinancialRiskReport["metrics"];
 }
