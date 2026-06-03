@@ -198,7 +198,7 @@ export class ObligationService {
       sourceDocumentId?: string;
     } = {
       startDate: row.startDate,
-      amount: row.amount,
+      amount: Number(row.amount),
       category: row.category,
     };
     if (row.sourceDocumentId) {

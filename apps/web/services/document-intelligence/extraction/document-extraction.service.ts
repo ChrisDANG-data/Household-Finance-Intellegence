@@ -201,7 +201,10 @@ export class DocumentExtractionService {
         owner: "partner_a",
         confidence: 0.9,
         source_document_id: documentId,
-        metadata: { name: ob.name, notes: ob.notes } as Record<string, unknown>,
+        metadata: {
+          contract_name: ob.name,
+          is_fixed: true,
+        },
       });
 
       savedCount++;

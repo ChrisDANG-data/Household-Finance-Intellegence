@@ -13,18 +13,20 @@ import {
 
 describe("AI Financial Advisor", () => {
   const state = buildBasicScenarioState();
-  const timeline = financialStateEngine.simulateForecast(
-    state,
-    12,
-    FORECAST_START_MONTH,
-  );
+  const timeline = financialStateEngine.simulateForecast(state, {
+    months: 12,
+    startMonth: FORECAST_START_MONTH,
+  });
   const risk = financialStateEngine.analyzeRisk(state, timeline);
+  const baseInput = {
+    state,
+    timeline,
+    risk,
+    user_query: "Summarize my household finances.",
+  };
 
   it("returns structured FinancialAdviceResponse without LLM", async () => {
-    const advice = await generateFinancialAdvice(
-      { state, timeline, risk },
-      { useLlm: false },
-    );
+    const advice = await generateFinancialAdvice(baseInput, { useLlm: false });
 
     expect(advice.summary).toBeTruthy();
     expect(advice.key_insights.length).toBeGreaterThan(0);
@@ -39,8 +41,8 @@ describe("AI Financial Advisor", () => {
   });
 
   it("deterministic fallback is stable across runs", () => {
-    const a = buildDeterministicAdvice({ state, timeline, risk });
-    const b = buildDeterministicAdvice({ state, timeline, risk });
+    const a = buildDeterministicAdvice(baseInput);
+    const b = buildDeterministicAdvice(baseInput);
     expect(a).toEqual(b);
   });
 
