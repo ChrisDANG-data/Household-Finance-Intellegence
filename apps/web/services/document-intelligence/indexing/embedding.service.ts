@@ -1,23 +1,13 @@
-import { pipeline, type FeatureExtractionPipeline } from "@xenova/transformers";
-
 import type { EmbeddingRecord } from "@/types/documents";
 import { prisma } from "@/lib/prisma";
 import { AppError } from "@/utils/errors";
 import { chunkText } from "@/utils/chunking";
 
-const MODEL_NAME = "Xenova/all-MiniLM-L6-v2";
-const EMBEDDING_DIMENSIONS = 384;
-
-let embeddingPipeline: FeatureExtractionPipeline | null = null;
-
-async function getEmbeddingPipeline(): Promise<FeatureExtractionPipeline> {
-  if (!embeddingPipeline) {
-    embeddingPipeline = await pipeline("feature-extraction", MODEL_NAME, {
-      quantized: true,
-    });
-  }
-  return embeddingPipeline;
-}
+import {
+  embedBatch as embedBatchVectors,
+  embedText as embedTextVector,
+  embeddingDimensions,
+} from "./embedding-provider";
 
 function vectorToSql(vec: number[]): string {
   return `[${vec.join(",")}]`;
@@ -25,29 +15,19 @@ function vectorToSql(vec: number[]): string {
 
 /**
  * Document Intelligence Engine — vector indexing for retrieval.
- * Uses local all-MiniLM-L6-v2 model (384 dimensions, no API key required).
+ * Local dev: Xenova/all-MiniLM-L6-v2 (384d). Vercel: OpenAI text-embedding-3-small (384d).
  */
 export class DocumentEmbeddingService {
   get dimensions(): number {
-    return EMBEDDING_DIMENSIONS;
+    return embeddingDimensions();
   }
 
   async embedText(text: string): Promise<number[]> {
-    const pipe = await getEmbeddingPipeline();
-    const output = await pipe(text, { pooling: "mean", normalize: true });
-    return Array.from(output.data as Float32Array);
+    return embedTextVector(text);
   }
 
   async embedBatch(texts: string[]): Promise<number[][]> {
-    const pipe = await getEmbeddingPipeline();
-    const results: number[][] = [];
-
-    for (const text of texts) {
-      const output = await pipe(text, { pooling: "mean", normalize: true });
-      results.push(Array.from(output.data as Float32Array));
-    }
-
-    return results;
+    return embedBatchVectors(texts);
   }
 
   async embedDocumentChunks(
@@ -90,9 +70,6 @@ export class DocumentEmbeddingService {
     return records;
   }
 
-  /**
-   * Full pipeline: chunk extracted text from a document and embed all chunks.
-   */
   async indexDocument(documentId: string): Promise<EmbeddingRecord[]> {
     const doc = await prisma.document.findUnique({
       where: { id: documentId },

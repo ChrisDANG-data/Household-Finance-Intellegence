@@ -28,6 +28,15 @@ Uploaded PDFs/images are stored in **object storage**; Postgres holds metadata, 
 
 `Document.storagePath` stores either a local filesystem path or a private blob URL. Extraction reads from whichever was used at upload time.
 
+**RAG embeddings (search chunks):**
+
+| Environment | Provider | Env |
+|-------------|----------|-----|
+| Local dev (default) | Xenova all-MiniLM-L6-v2 (free, 384d) | none |
+| Vercel / serverless | OpenAI `text-embedding-3-small` (384d) | `OPENAI_API_KEY` required on Vercel |
+
+Optional: `EMBEDDING_PROVIDER=openai` or `local` to override.
+
 ## n8n
 
 ### Local startup
