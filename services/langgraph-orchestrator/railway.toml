@@ -1,6 +1,8 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
+# Monorepo: only rebuild when LangGraph files change (set same path in Railway UI watch patterns)
+watchPatterns = ["**"]
 
 [deploy]
 healthcheckPath = "/health"

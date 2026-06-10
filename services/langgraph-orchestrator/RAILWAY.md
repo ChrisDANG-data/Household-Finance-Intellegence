@@ -16,8 +16,24 @@ User → Vercel (Next.js)
 
 1. [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**
 2. Select this repository
-3. **Settings → Root Directory** → `services/langgraph-orchestrator`
-4. Railway detects `Dockerfile` + `railway.toml` automatically
+3. **Settings → Source → Root Directory** → `services/langgraph-orchestrator`
+4. Railway detects `Dockerfile` + `railway.toml` in that folder
+
+### If build runs `npm run build` (wrong — that's the Next.js app)
+
+The LangGraph service must **not** use Node build commands. In **Settings**:
+
+| Setting | Correct value |
+|---------|----------------|
+| **Root Directory** | `services/langgraph-orchestrator` |
+| **Watch paths** | `services/langgraph-orchestrator/**` (not `apps/web/**`) |
+| **Build command** | *(empty — delete `npm run build --workspace=web`)* |
+| **Start command** | *(empty — Dockerfile `CMD` starts uvicorn)* |
+| **Builder** | Dockerfile (from `railway.toml`) |
+
+Railway **Diagnose** may offer **“Fix watch patterns and commands”** — click that, then redeploy.
+
+If `railway.toml` was ignored, watch paths were probably still pointing at `apps/web/**`.
 
 ## 2. Railway environment variables
 
