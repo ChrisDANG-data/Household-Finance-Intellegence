@@ -45,6 +45,8 @@ Optional: `EMBEDDING_PROVIDER=openai` or `local` to override.
 docker compose up -d postgres n8n
 ```
 
+**Telegram (after n8n Cloud trial):** self-host n8n + ngrok tunnel — full steps in [`N8N_TELEGRAM_LOCAL.md`](./N8N_TELEGRAM_LOCAL.md). Import workflow `automation/n8n/workflows/telegram-financial-qa.json`.
+
 ### Required env (apps/web/.env)
 
 - `AUTOMATION_WEBHOOK_TOKEN` (Bearer token expected by automation routes)

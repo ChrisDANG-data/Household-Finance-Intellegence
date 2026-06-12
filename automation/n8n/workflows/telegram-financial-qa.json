@@ -1,0 +1,73 @@
+{
+  "name": "Telegram financial Q&A",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"]
+      },
+      "id": "telegram-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "household-financial-qa"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.APP_API_BASE_URL || 'https://household-financial-web.vercel.app' }}/api/automation/financial-question",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $json.message.text }) }}",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "id": "ask-api",
+      "name": "ask_financial_question",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_HEADER_AUTH_CREDENTIAL_ID",
+          "name": "Vercel automation Bearer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.data.reply || $json.error?.message || 'No answer available.' }}",
+        "additionalFields": {}
+      },
+      "id": "telegram-reply",
+      "name": "Send reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [720, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_WITH_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [[{ "node": "ask_financial_question", "type": "main", "index": 0 }]]
+    },
+    "ask_financial_question": {
+      "main": [[{ "node": "Send reply", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

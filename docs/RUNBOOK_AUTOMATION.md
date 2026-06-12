@@ -2,7 +2,7 @@
 
 ## Health checks
 
-- n8n UI: `http://localhost:5678`
+- n8n UI: `http://127.0.0.1:5678` (use this on Windows if `localhost` fails)
 - LangGraph health: `GET http://localhost:8081/health`
 - App health: `GET http://localhost:3000/api/health`
 
