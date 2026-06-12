@@ -1,0 +1,153 @@
+Work item id,Issue Type,Parent id,Summary,Description,Priority,Labels,Status
+HFI-101,Story,KAN-4,n8n HTTP tool calls financial-question API,"Ref: HFI-101 | Epic: KAN-4
+
+Acceptance criteria:
+- Tool URL is POST /api/automation/financial-question (not /api/scenario-chat)
+- Agent does not receive full timeline JSON
+
+Commit: c8ae705",Medium,automation;n8n,Done
+HFI-102,Task,KAN-4,Configure Bearer auth in n8n,"Ref: HFI-102 | Epic: KAN-4
+
+Acceptance criteria:
+- Header Authorization: Bearer AUTOMATION_WEBHOOK_TOKEN
+- APP_API_BASE_URL=https://household-financial-web.vercel.app
+- curl returns 200 not 401",Medium,automation;n8n,Done
+HFI-103,Task,KAN-4,Agent returns data.reply verbatim,"Ref: HFI-103 | Epic: KAN-4
+
+Acceptance criteria:
+- n8n agent system prompt forbids recomputing totals
+- Telegram shows exact data.reply from tool response",High,automation;n8n,To Do
+HFI-104,Task,KAN-4,Smoke test July income via Telegram,"Ref: HFI-104 | Epic: KAN-4
+
+Acceptance criteria:
+- Ask what is the income in July in Telegram
+- Reply shows ~$8200 not $51800
+- route is deterministic_ledger",High,automation;n8n;vercel,To Do
+HFI-105,Bug,KAN-4,Telegram showed $51800 for July income,"Ref: HFI-105 | Epic: KAN-4
+
+Root cause: duplicate salary rows in Neon DB (not agent math).
+Mitigation: HFI-201 + HFI-302. Verify: HFI-202 HFI-104",High,automation;ledger;bug,Done
+HFI-201,Story,KAN-5,Dedupe events on read for projections,"Ref: HFI-201 | Epic: KAN-5
+
+Acceptance criteria:
+- loadState applies dedupeFinancialEventsForProjection
+- July income = $8200
+
+Commit: 7a31a4d",High,ledger;data-quality,Done
+HFI-202,Task,KAN-5,Deploy dedupe fix to Vercel,"Ref: HFI-202 | Epic: KAN-5
+
+Acceptance criteria:
+- Production API matches local
+- July income reply contains $8200.00
+
+Commit pushed: 7a31a4d — confirm Vercel deploy green",High,vercel;ledger,To Do
+HFI-203,Task,KAN-5,Clean duplicate salary rows in Ledger UI,"Ref: HFI-203 | Epic: KAN-5
+
+Acceptance criteria:
+- Remove extra duplicate salary events in Neon (optional hygiene)",Low,ledger,To Do
+HFI-204,Story,KAN-5,Deterministic month lookup for Q&A,"Ref: HFI-204 | Epic: KAN-5
+
+Acceptance criteria:
+- tryDeterministicMonthAnswer handles income in July without LLM",Medium,ledger,Done
+HFI-301,Story,KAN-6,Shared amount validator,"Ref: HFI-301 | Epic: KAN-6
+
+Acceptance criteria:
+- validateFinancialAmount min $0.01 max $1M rejects negative/NaN
+- 11 unit tests pass
+
+Commit: 7a31a4d",Medium,data-quality,Done
+HFI-302,Story,KAN-6,Write-time duplicate blocking,"Ref: HFI-302 | Epic: KAN-6
+
+Acceptance criteria:
+- createEvent/updateEvent reject duplicates (400)
+- ingestRawEvents skips duplicates
+
+Commit: 7a31a4d",Medium,data-quality,Done
+HFI-303,Task,KAN-6,Document confirm skips invalid amounts,"Ref: HFI-303 | Epic: KAN-6
+
+Acceptance criteria:
+- saveObligations filters invalid amounts before ledger write
+
+Commit: 7a31a4d",Medium,data-quality;documents,Done
+HFI-304,Task,KAN-6,Deploy validation to Vercel,"Ref: HFI-304 | Epic: KAN-6
+
+Acceptance criteria:
+- POST negative amount → 400
+- POST duplicate salary → 400
+
+Same deploy as HFI-202",High,data-quality;vercel,To Do
+HFI-305,Story,KAN-6,Data quality report / admin view,"Ref: HFI-305 | Epic: KAN-6
+
+Backlog: list outliers duplicates zero-amount rows",Low,data-quality,Backlog
+HFI-306,Story,KAN-6,UI outlier warning above $50k,"Ref: HFI-306 | Epic: KAN-6
+
+Backlog: confirm dialog before save on large amounts",Low,data-quality,Backlog
+HFI-307,Task,KAN-6,Zod schemas on financial-state APIs,"Ref: HFI-307 | Epic: KAN-6
+
+Backlog: Zod on POST/PATCH financial-state routes",Low,data-quality,Backlog
+HFI-401,Story,KAN-7,Upload extract review confirm flow,"Ref: HFI-401 | Epic: KAN-7
+
+Acceptance criteria:
+- Two-step POST /api/documents/extraction
+- ObligationReviewDialog before save",Medium,documents,Done
+HFI-402,Task,KAN-7,replaceExisting on document re-confirm,"Ref: HFI-402 | Epic: KAN-7
+
+Acceptance criteria:
+- replaceExisting deletes prior rows for same sourceDocumentId",Medium,documents,Done
+HFI-403,Bug,KAN-7,Re-upload created duplicate salary rows,"Ref: HFI-403 | Epic: KAN-7
+
+Mitigated by HFI-201 + HFI-302",Medium,documents;data-quality;bug,Done
+HFI-404,Task,KAN-7,Human review before automation,"Ref: HFI-404 | Epic: KAN-7
+
+Acceptance criteria:
+- ObligationReviewDialog required before ledger write",Medium,documents,Done
+HFI-501,Story,KAN-8,LangGraph service on Railway,"Ref: HFI-501 | Epic: KAN-8
+
+Acceptance criteria:
+- services/langgraph-orchestrator on Railway with Dockerfile",Medium,railway;langgraph,Done
+HFI-502,Task,KAN-8,Vercel env LANGGRAPH_ENABLED and LANGGRAPH_URL,"Ref: HFI-502 | Epic: KAN-8
+
+Acceptance criteria:
+- Vercel env set; simple questions skip LangGraph",Medium,railway;vercel;langgraph,To Do
+HFI-503,Task,KAN-8,Remove Hybrid/Direct UI toggle,"Ref: HFI-503 | Epic: KAN-8
+
+Acceptance criteria:
+- Server-side hybrid routing only",Medium,langgraph,Done
+HFI-504,Task,KAN-8,Health check LangGraph on Railway,"Ref: HFI-504 | Epic: KAN-8
+
+Acceptance criteria:
+- LANGGRAPH_URL healthy; complex questions route via LangGraph",Medium,railway;langgraph,To Do
+HFI-601,Story,KAN-9,Household wiki from uploads,"Ref: HFI-601 | Epic: KAN-9
+
+Acceptance criteria:
+- services/wiki + ObsidianWikiPanel",Low,docs,Done
+HFI-602,Story,KAN-9,Engineering vault sync,"Ref: HFI-602 | Epic: KAN-9
+
+Acceptance criteria:
+- npm run sync:obsidian",Low,docs,Done
+HFI-603,Task,KAN-9,OBSIDIAN_VAULT_PATH in env,"Ref: HFI-603 | Epic: KAN-9
+
+Acceptance criteria:
+- OBSIDIAN_VAULT_PATH in apps/web/.env",Low,docs,Done
+HFI-701,Task,KAN-10,Commit and push data-quality dedupe changes,"Ref: HFI-701 | Epic: KAN-10
+
+Acceptance criteria:
+- Commit 7a31a4d on main",High,vercel;data-quality,Done
+HFI-702,Task,KAN-10,Deploy apps/web to Vercel,"Ref: HFI-702 | Epic: KAN-10
+
+Acceptance criteria:
+- Vercel deploy green for 7a31a4d",High,vercel,To Do
+HFI-703,Task,KAN-10,Align AUTOMATION_WEBHOOK_TOKEN Vercel and n8n,"Ref: HFI-703 | Epic: KAN-10
+
+Acceptance criteria:
+- Same token in Vercel and n8n; curl returns 200",Medium,automation;vercel,Done
+HFI-704,Task,KAN-10,Update INTEGRATIONS and N8N_EVAL_SETUP docs,"Ref: HFI-704 | Epic: KAN-10
+
+Acceptance criteria:
+- docs reference /api/automation/financial-question",Low,automation;docs,Done
+HFI-705,Task,KAN-10,Post-deploy regression checklist,"Ref: HFI-705 | Epic: KAN-10
+
+Acceptance criteria:
+- Forecast July ~$8200
+- Telegram matches API
+- Duplicate/negative amount blocked (400)",High,vercel;mvp,To Do

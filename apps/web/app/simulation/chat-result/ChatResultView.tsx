@@ -183,7 +183,7 @@ export function ChatResultView() {
     : null;
 
   return (
-    <div className="relative min-h-screen pb-16 pt-28 sm:pt-32">
+    <div className="relative min-h-screen pb-16 pt-8 sm:pt-10">
       <div className="mx-auto max-w-3xl space-y-6 px-4 sm:px-8">
         <div className="flex flex-wrap items-center gap-2">
           <Link href="/simulation">

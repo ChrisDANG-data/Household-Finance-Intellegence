@@ -168,7 +168,57 @@ Expect: `data.route` = `deterministic_ledger`, `data.reply` contains `$8,200.00`
 
 ---
 
-## CSV import (optional)
+## CSV bulk import (link to existing epics)
+
+**File:** [JIRA_BACKLOG.csv](./JIRA_BACKLOG.csv) — **32 issues only** (no epic rows — you already created them)
+
+### Your epic keys (do not re-import)
+
+| Jira key | Epic summary |
+|----------|----------------|
+| **KAN-4** | Telegram / n8n automation |
+| **KAN-5** | Forecast & deterministic ledger |
+| **KAN-6** | Data quality & validation |
+| **KAN-7** | Document ingestion & RAG |
+| **KAN-8** | LangGraph multi-agent routing |
+| **KAN-9** | Obsidian / project documentation |
+| **KAN-10** | Deploy & operations |
+
+The CSV **`Parent`** column uses these keys so each Story/Task/Bug links to your epics.
+
+### Steps (Jira Cloud Kanban)
+
+1. Open **HFI/KAN** project → **⋯** → **Import issues**.
+2. Upload `docs/JIRA_BACKLOG.csv`.
+3. Map columns (**required for Parent linking**):
+
+   | CSV column | Jira field |
+   |------------|------------|
+   | **Work item id** | **Work item ID** |
+   | **Issue Type** | **Issue Type** |
+   | **Parent id** | **Parent** (or Parent ID) |
+   | Summary | Summary |
+   | Description | Description |
+   | Priority | Priority |
+   | Labels | Labels |
+   | Status | Status |
+
+   If you see **“Map work item ID to proceed”**, you must map **Work item id** → **Work item ID** before import will continue.
+
+4. **Parent id** values are your existing epic keys: `KAN-4` … `KAN-10`.
+
+### If Parent column fails
+
+Import without Parent, then bulk-edit in Jira:
+- Select imported issues → **⋯** → **Bulk change** → set **Parent** to KAN-4 … KAN-10 using the `Ref: HFI-xxx | Epic: KAN-x` line in each description.
+
+### Reference IDs
+
+Descriptions include `Ref: HFI-101` and `Epic: KAN-4` for traceability. Jira will assign new keys (e.g. KAN-11+).
+
+---
+
+## CSV import (manual / legacy)
 
 Create a CSV with columns: `Summary, Issue Type, Description, Epic Link, Labels, Priority`
 
