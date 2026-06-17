@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import {
   buildBasicScenarioState,
@@ -11,6 +11,15 @@ import { handleScenarioMessage } from "../orchestrator";
 
 vi.mock("@/services/langgraph/orchestrator-client", () => ({
   orchestrateWithLangGraph: vi.fn().mockResolvedValue(null),
+}));
+
+const mockLoadState = vi.fn();
+
+vi.mock("@/services/financial-state/financial-state.persistence", () => ({
+  DEFAULT_USER_ID: "default",
+  financialStatePersistence: {
+    loadState: (...args: unknown[]) => mockLoadState(...args),
+  },
 }));
 
 describe("Scenario Chat — intent parser", () => {
@@ -60,6 +69,10 @@ describe("Scenario Chat — intent parser", () => {
 
 describe("Scenario Chat — orchestrator", () => {
   const state = buildBasicScenarioState();
+
+  beforeEach(() => {
+    mockLoadState.mockResolvedValue(state);
+  });
 
   it("runs full pipeline without LLM", async () => {
     const response = await handleScenarioMessage({
