@@ -52,6 +52,7 @@ export async function POST(request: Request) {
         obsidianVaultSynced: result.processing.obsidianVaultSynced,
         obligationsSaved: result.processing.obligationsSaved,
         detectedObligations: result.processing.detectedObligations,
+        expectedInstallmentCount: result.processing.expectedInstallmentCount,
         warnings: result.processing.warnings,
       },
       { status: 201 },

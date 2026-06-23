@@ -24,6 +24,9 @@ export function DocumentReanalyzeButton({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [obligations, setObligations] = useState<ReviewableObligation[]>([]);
+  const [expectedInstallmentCount, setExpectedInstallmentCount] = useState<
+    number | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleReanalyze() {
@@ -32,6 +35,7 @@ export function DocumentReanalyzeButton({
     try {
       const result = await reanalyzeDocumentPayments(documentId);
       setObligations(result.detectedObligations);
+      setExpectedInstallmentCount(result.expectedInstallmentCount ?? null);
       setOpen(true);
       if (result.warnings.length > 0) {
         setError(result.warnings.join(" "));
@@ -61,6 +65,7 @@ export function DocumentReanalyzeButton({
         documentId={documentId}
         filename={filename}
         initialObligations={obligations}
+        expectedInstallmentCount={expectedInstallmentCount}
         loading={loading && obligations.length === 0}
         onClose={() => setOpen(false)}
         onSaved={() => router.refresh()}

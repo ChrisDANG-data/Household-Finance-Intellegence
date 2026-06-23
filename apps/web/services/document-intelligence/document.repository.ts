@@ -25,6 +25,7 @@ export interface DocumentProcessSummary {
   obsidianVaultSynced: boolean;
   obligationsSaved: number;
   detectedObligations: ReviewableObligation[];
+  expectedInstallmentCount: number | null;
   warnings: string[];
 }
 
@@ -114,6 +115,7 @@ export class DocumentRepository {
       obsidianVaultSynced: false,
       obligationsSaved: 0,
       detectedObligations: [],
+      expectedInstallmentCount: null,
       warnings: [],
     };
 
@@ -209,6 +211,7 @@ export class DocumentRepository {
       );
       const payload = await documentExtractionService.extract(documentId);
       processing.detectedObligations = payload.obligations.map(toReviewable);
+      processing.expectedInstallmentCount = payload.expectedInstallmentCount;
       processing.obligationsSaved = 0;
       if (payload.obligations.length === 0) {
         processing.warnings.push(

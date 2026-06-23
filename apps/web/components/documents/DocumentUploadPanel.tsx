@@ -31,6 +31,9 @@ export function DocumentUploadPanel() {
   const [reviewObligations, setReviewObligations] = useState<
     ReviewableObligation[]
   >([]);
+  const [reviewExpectedInstallments, setReviewExpectedInstallments] = useState<
+    number | null
+  >(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
   async function openReview(documentId: string, filename: string) {
@@ -39,9 +42,11 @@ export function DocumentUploadPanel() {
     setReviewOpen(true);
     setReviewLoading(true);
     setReviewObligations([]);
+    setReviewExpectedInstallments(null);
     try {
       const preview = await previewDocumentExtraction(documentId, provider);
       setReviewObligations(preview.obligations);
+      setReviewExpectedInstallments(preview.expectedInstallmentCount ?? null);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not analyze document",
@@ -67,8 +72,12 @@ export function DocumentUploadPanel() {
       if (result.wikiPagesWritten > 0) {
         parts.push(
           result.obsidianVaultSynced
-            ? `Updated Obsidian wiki (${result.wikiPagesWritten} notes)`
-            : `Compiled Obsidian wiki (${result.wikiPagesWritten} notes)`,
+            ? `Updated Obsidian wiki (${result.wikiPagesWritten} notes) in Household/Documents/`
+            : `Wiki compiled (${result.wikiPagesWritten} notes) but vault not written — click Sync local vault or run npm run sync:household-wiki`,
+        );
+      } else if (!result.obsidianVaultSynced) {
+        parts.push(
+          "Obsidian vault not updated — click Sync local vault or run npm run sync:household-wiki",
         );
       }
       if (result.detectedObligations.length > 0) {
@@ -87,6 +96,7 @@ export function DocumentUploadPanel() {
         setReviewDocId(result.document.id);
         setReviewFilename(result.document.filename);
         setReviewObligations(result.detectedObligations);
+        setReviewExpectedInstallments(result.expectedInstallmentCount ?? null);
         setReviewOpen(true);
         setReviewLoading(false);
       } else if (result.document.extractionStatus === "COMPLETED") {
@@ -148,6 +158,7 @@ export function DocumentUploadPanel() {
         documentId={reviewDocId}
         filename={reviewFilename}
         initialObligations={reviewObligations}
+        expectedInstallmentCount={reviewExpectedInstallments}
         loading={reviewLoading}
         onClose={() => setReviewOpen(false)}
         onSaved={(count) => {

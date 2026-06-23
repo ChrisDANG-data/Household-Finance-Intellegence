@@ -24,7 +24,8 @@
     "db:push": "npm run db:push --workspace=web",
     "db:studio": "npm run db:studio --workspace=web",
     "test": "npm run test --workspace=web",
-    "sync:obsidian": "node scripts/sync-engineering-obsidian.mjs"
+    "sync:obsidian": "node scripts/sync-engineering-obsidian.mjs",
+    "sync:household-wiki": "npm run sync:household-wiki --workspace=web"
   },
   "dependencies": {
     "ffmpeg-static": "^5.2.0",

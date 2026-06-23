@@ -16,6 +16,26 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: monorepoRoot,
   },
+  async rewrites() {
+    return [
+      {
+        source: "/api/wiki/sync",
+        destination: "/api/documents/obsidian-sync",
+      },
+      {
+        source: "/api/wiki/export",
+        destination: "/api/documents/obsidian-export",
+      },
+      {
+        source: "/api/obsidian-vault/sync",
+        destination: "/api/documents/obsidian-sync",
+      },
+      {
+        source: "/api/obsidian-vault/export",
+        destination: "/api/documents/obsidian-export",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

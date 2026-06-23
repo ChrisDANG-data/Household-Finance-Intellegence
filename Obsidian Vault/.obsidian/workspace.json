@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Events/cmpmtqdjo000mvar83y7eaz9t.md",
+                "file": "Documents/dffcdf07-f41b-4e74-9b4f-56d75b6eb4df.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "cmpmtqdjo000mvar83y7eaz9t"
+              "title": "dffcdf07-f41b-4e74-9b4f-56d75b6eb4df"
             }
           }
         ]
@@ -41,7 +41,7 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": true
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "insurance",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -74,12 +74,11 @@
               "title": "Bookmarks"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 412.5
+    "width": 372.5
   },
   "right": {
     "id": "31ced0e18e725510",
@@ -183,30 +182,37 @@
   },
   "active": "5396d30522773b89",
   "lastOpenFiles": [
-    "Categories/car-insurance.md",
-    "Events/cmpmtqdjo000mvar83y7eaz9t.md",
-    "Ledger/Events.md",
-    "01_Architecture/DEPENDENCIES.md",
-    "01_Architecture/ARCHITECTURE.md",
-    "01_Architecture/INTEGRATIONS.md",
-    "03_Build_Log/2026-06-10_Session.md",
-    "02_Decisions/2026-06-10_Obsidian_Engineering_Wiki.md",
-    "09_Code_From_Chat/2026-06-10_obsidian-dual-wiki-setup.md",
-    "02_Decisions/2026-05-31_Obsidian_Engineering_Wiki.md",
-    "00_Dashboard/Project Dashboard.md",
-    "Household Index.md",
-    "README.md",
-    "Categories/car.md",
-    "Events/cmpmu9go8000tvar8mlhludei.md",
-    "Events/cmpmtwj5p000rvar8g3fp6frc.md",
-    "Events/cmpms7mh3000hvar8nm2wjztf.md",
-    "Events/cmplmpcew000dvar8l59vvek0.md",
-    "Events/cmpliq9bm0007var86kmzt6dc.md",
+    "Household/Documents/47a56c7a-66b8-4bbf-af8d-8727532fdcbe.md",
+    "Household/Documents/49f0ec7e-168c-451b-951d-2d8ef211f313.md",
     "Documents/dffcdf07-f41b-4e74-9b4f-56d75b6eb4df.md",
-    "Documents/cmpobwhne0000va00og9c189n.md",
-    "Documents/cmpmtwf0g000nvar8n6dlc516.md",
-    "Documents/cmplfo5n60003va7crukns3js.md",
-    "Documents/cmplf4qke0000va7c04124fi3.md",
-    "Documents/cmpl9hcv40000va94rou2g77t.md"
+    "Household/Events/cmqqv7hsk0003lb04mgbagnf9.md",
+    "Household/Events/cmqqv7htk0007lb041t1rf6fs.md",
+    "Household/Events/cmqqv7hue000blb04z09v5d8f.md",
+    "Household/Documents/251220e9-691e-4de6-b4e7-72028f0876ea.md",
+    "Household/Documents/d559609b-b9fc-496d-9e63-3372ba3d2c3f.md",
+    "Household/Documents/f5ef20fb-3ccd-4015-9757-b6fed7873d3a.md",
+    "Household/Documents/cf5600a4-377d-403e-af15-7b668b45d855.md",
+    "Household Index.md",
+    "Household/Household Index.md",
+    "Household/Documents/f87438cc-46fc-499b-89f3-330b91e90865.md",
+    "Categories/house-insurance.md",
+    "Household/Ledger/Events.md",
+    "Household/Events/cmqqt2ql80009jo04sdb14ycn.md",
+    "Household/Events/cmqqut6tw0003ju040i8jzs8o.md",
+    "Household/Events/cmqqut6vf000bju041pb81has.md",
+    "Household/Events/cmqqut6wr000jju042o7jr9v5.md",
+    "Household/Events/cmqqut6w4000fju04al1rqlwi.md",
+    "Household/Events/cmqb9x1s00005ky04pfdl058x.md",
+    "Household/Events/cmpzrldui0007jl04d03ideom.md",
+    "Household/Events/cmpzrevu50003jl04tfh77ond.md",
+    "Household/Events/cmpybgms00007k104l1miz2k9.md",
+    "Household/Events/cmpur76mb0001l204o3w9ywzd.md",
+    "Household/Events/cmpuqqxfj0001l804bw6zi1wf.md",
+    "Untitled.canvas",
+    "Household/Ledger",
+    "Household/Events",
+    "Household/Categories",
+    "Household/Documents",
+    "Untitled 1.canvas"
   ]
 }

@@ -66,6 +66,8 @@ export interface ReviewableObligation {
 export interface ExtractionPreviewResult {
   documentId: string;
   obligations: ReviewableObligation[];
+  /** Parsed from contract (e.g. 4 quarterly steps); omit when unknown. */
+  expectedInstallmentCount?: number | null;
   message: string;
 }
 
@@ -83,6 +85,7 @@ export interface DocumentUploadResponse {
   obsidianVaultSynced: boolean;
   obligationsSaved: number;
   detectedObligations: ReviewableObligation[];
+  expectedInstallmentCount?: number | null;
   warnings: string[];
 }
 

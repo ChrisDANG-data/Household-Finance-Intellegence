@@ -2,8 +2,6 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { PassThrough } from "node:stream";
 
-import archiver from "archiver";
-
 import { env } from "@/lib/env";
 import {
   compileWikiVault,
@@ -37,6 +35,8 @@ async function writeVaultFiles(
 }
 
 export async function buildVaultZipBuffer(files: WikiFile[]): Promise<Buffer> {
+  const archiver = (await import("archiver")).default;
+
   return new Promise((resolve, reject) => {
     const passthrough = new PassThrough();
     const chunks: Buffer[] = [];

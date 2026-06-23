@@ -30,6 +30,7 @@ export async function POST(
       chunksIndexed: result.processing.chunksIndexed,
       obligationsSaved: result.processing.obligationsSaved,
       detectedObligations: result.processing.detectedObligations,
+      expectedInstallmentCount: result.processing.expectedInstallmentCount,
       warnings: result.processing.warnings,
     });
   });

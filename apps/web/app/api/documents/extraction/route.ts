@@ -73,6 +73,7 @@ export async function POST(request: Request) {
     return jsonSuccess({
       documentId: body.documentId,
       obligations: payload.obligations,
+      expectedInstallmentCount: payload.expectedInstallmentCount,
       willSave: withAmount,
       willSkip: withoutAmount,
       savedToDb: 0,

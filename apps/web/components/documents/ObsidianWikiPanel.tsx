@@ -84,11 +84,17 @@ export function ObsidianWikiPanel() {
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Local sync requires{" "}
+          Notes are written under{" "}
+          <code className="rounded bg-muted px-1 py-0.5">Household/Documents/</code>{" "}
+          in your vault — open{" "}
+          <code className="rounded bg-muted px-1 py-0.5">Household/Household Index.md</code>{" "}
+          in Obsidian. Local sync requires{" "}
           <code className="rounded bg-muted px-1 py-0.5">OBSIDIAN_VAULT_PATH</code>{" "}
           in <code className="rounded bg-muted px-1 py-0.5">apps/web/.env</code>.
-          ZIP export works on Vercel without a server path. Engineering notes
-          (decisions, logs, chat code): run{" "}
+          CLI fallback:{" "}
+          <code className="rounded bg-muted px-1 py-0.5">npm run sync:household-wiki</code>{" "}
+          from the repo root. ZIP export works on Vercel without a server path.
+          Engineering notes (decisions, logs, chat code): run{" "}
           <code className="rounded bg-muted px-1 py-0.5">npm run sync:obsidian</code>{" "}
           from the repo root.
         </p>

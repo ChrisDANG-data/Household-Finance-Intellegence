@@ -196,6 +196,53 @@ export function parseInstallmentScheduleFromText(
   return rows.length >= 2 ? rows : [];
 }
 
+/**
+ * Read how many installments the contract claims (e.g. "4-Step Quarterly" → 4).
+ * Used for review UI hints only — not persisted.
+ */
+export function inferExpectedInstallmentCount(text: string): number | null {
+  const head = text.slice(0, 6000);
+
+  const stepPlan = head.match(/\b(\d{1,2})[\s-]*step\b/i);
+  if (stepPlan) {
+    const n = Number(stepPlan[1]);
+    if (n >= 2 && n <= 24) return n;
+  }
+
+  const quarterPlan = head.match(/\b(\d{1,2})[\s-]*quarter(?:ly)?\b/i);
+  if (quarterPlan) {
+    const n = Number(quarterPlan[1]);
+    if (n >= 2 && n <= 24) return n;
+  }
+
+  const countLabel = head.match(/\b(\d{1,2})\s*installments?\b/i);
+  if (countLabel) {
+    const n = Number(countLabel[1]);
+    if (n >= 2 && n <= 24) return n;
+  }
+
+  const range = head.match(
+    /installments?\s*0?(\d{1,2})\s*[–\-—]\s*0?(\d{1,2})\b/i,
+  );
+  if (range) {
+    const hi = Math.max(Number(range[1]), Number(range[2]));
+    if (hi >= 2 && hi <= 24) return hi;
+  }
+
+  if (SCHEDULE_CUE.test(head)) {
+    const nums = new Set<number>();
+    for (const line of head.split(/\r?\n/)) {
+      const leading = line.trim().match(/^0?(\d{1,2})\b/);
+      if (leading && extractDueDate(line)) {
+        nums.add(Number(leading[1]));
+      }
+    }
+    if (nums.size >= 2) return Math.max(...nums);
+  }
+
+  return null;
+}
+
 /** Prefer deterministic schedule rows over LLM output when the document has an installment table. */
 export function resolveObligationsFromDocumentText(
   text: string,

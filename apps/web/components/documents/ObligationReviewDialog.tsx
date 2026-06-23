@@ -35,6 +35,7 @@ interface ObligationReviewDialogProps {
   documentId: string;
   filename: string;
   initialObligations: ReviewableObligation[];
+  expectedInstallmentCount?: number | null;
   loading?: boolean;
   onClose: () => void;
   onSaved: (savedCount: number) => void;
@@ -46,6 +47,7 @@ export function ObligationReviewDialog({
   documentId,
   filename,
   initialObligations,
+  expectedInstallmentCount = null,
   loading = false,
   onClose,
   onSaved,
@@ -65,6 +67,13 @@ export function ObligationReviewDialog({
   }, [open, initialObligations]);
 
   if (!open) return null;
+
+  const missingInstallments =
+    expectedInstallmentCount != null &&
+    expectedInstallmentCount > 0 &&
+    rows.length < expectedInstallmentCount
+      ? expectedInstallmentCount - rows.length
+      : 0;
 
   function updateRow(index: number, patch: Partial<ReviewableObligation>) {
     setRows((prev) =>
@@ -139,15 +148,22 @@ export function ObligationReviewDialog({
           ) : (
             <div className="space-y-3">
               <p className="text-xs text-muted-foreground">
-                Tip: finite <strong>payment plans</strong> (e.g. 6 installments May–Oct)
-                need <strong>6 One-time</strong> rows with exact due dates — not Monthly.
-                If you see fewer than 6, use <strong>Add payment</strong> for missing
-                dates before confirming.
+                Tip: finite <strong>payment plans</strong> need one{" "}
+                <strong>One-time</strong> row per due date (not a single Monthly
+                row for the whole plan). Use <strong>Add payment</strong> if a
+                scheduled installment is missing before confirming.
               </p>
-              {rows.length > 0 && rows.length < 6 ? (
+              {missingInstallments > 0 ? (
                 <p className="text-xs text-amber-700 dark:text-amber-400" role="status">
-                  Detected {rows.length} payment(s). This insurance schedule usually has
-                  6 — add any missing installments below.
+                  Detected {rows.length} payment(s). This document describes{" "}
+                  {expectedInstallmentCount} installments — add {missingInstallments}{" "}
+                  missing row{missingInstallments === 1 ? "" : "s"} below if needed.
+                </p>
+              ) : expectedInstallmentCount != null &&
+                rows.length === expectedInstallmentCount ? (
+                <p className="text-xs text-emerald-700 dark:text-emerald-400" role="status">
+                  Detected {rows.length} payment(s) — matches the{" "}
+                  {expectedInstallmentCount}-installment schedule in the document.
                 </p>
               ) : null}
               <div className="overflow-x-auto rounded-lg border border-border">

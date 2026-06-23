@@ -17,7 +17,8 @@
     "db:push": "npm exec prisma -- db push",
     "db:studio": "npm exec prisma -- studio",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "sync:household-wiki": "npx tsx scripts/sync-household-wiki.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",

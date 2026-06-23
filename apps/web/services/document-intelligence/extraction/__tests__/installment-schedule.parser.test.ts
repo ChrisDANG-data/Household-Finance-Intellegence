@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  inferExpectedInstallmentCount,
   parseInstallmentScheduleFromText,
   resolveObligationsFromDocumentText,
 } from "../installment-schedule.parser";
@@ -73,5 +74,27 @@ Installment Scheduled Due Date Total Amount Due
     const resolved = resolveObligationsFromDocumentText(text, llm);
     expect(resolved).toHaveLength(6);
     expect(resolved.every((r) => r.frequency === "one_time")).toBe(true);
+  });
+});
+
+describe("inferExpectedInstallmentCount", () => {
+  it("reads 4-step quarterly plans from contract wording", () => {
+    const text = `
+SECTION III: PREMIUM SUMMARY & 4-QUARTER PAYMENT SCHEDULE
+The policyholder has chosen the 4-Step Quarterly Installment Plan.
+01 May 26, 2026 $360.00
+02 August 26, 2026 $365.00
+`;
+    expect(inferExpectedInstallmentCount(text)).toBe(4);
+  });
+
+  it("reads six-installment tables from schedule rows", () => {
+    expect(inferExpectedInstallmentCount(INSURANCE_SCHEDULE)).toBe(6);
+  });
+
+  it("returns null when no schedule count is stated", () => {
+    expect(
+      inferExpectedInstallmentCount("Monthly rent $2000 due on the 1st"),
+    ).toBeNull();
   });
 });

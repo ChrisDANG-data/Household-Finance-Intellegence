@@ -30,7 +30,7 @@ async function parseApi<T>(response: Response): Promise<T> {
 
 export async function syncObsidianWiki(): Promise<ObsidianWikiSyncResult> {
   return parseApi(
-    await fetch("/api/wiki/sync", {
+    await fetch("/api/documents/obsidian-sync", {
       method: "POST",
     }),
   );
@@ -38,7 +38,7 @@ export async function syncObsidianWiki(): Promise<ObsidianWikiSyncResult> {
 
 /** Triggers browser download of the Obsidian vault ZIP. */
 export async function downloadObsidianVaultZip(): Promise<void> {
-  const response = await fetch("/api/wiki/export", { cache: "no-store" });
+  const response = await fetch("/api/documents/obsidian-export", { cache: "no-store" });
   if (!response.ok) {
     const raw = await response.text();
     try {
@@ -104,6 +104,7 @@ export async function reanalyzeDocumentPayments(
   documentId: string,
 ): Promise<{
   detectedObligations: ReviewableObligation[];
+  expectedInstallmentCount?: number | null;
   warnings: string[];
 }> {
   return parseApi(

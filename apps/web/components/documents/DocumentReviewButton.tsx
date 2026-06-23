@@ -26,6 +26,9 @@ export function DocumentReviewButton({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [obligations, setObligations] = useState<ReviewableObligation[]>([]);
+  const [expectedInstallmentCount, setExpectedInstallmentCount] = useState<
+    number | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
 
   if (!hasExtractedText) return null;
@@ -35,9 +38,11 @@ export function DocumentReviewButton({
     setLoading(true);
     setError(null);
     setObligations([]);
+    setExpectedInstallmentCount(null);
     try {
       const preview = await previewDocumentExtraction(documentId, provider);
       setObligations(preview.obligations);
+      setExpectedInstallmentCount(preview.expectedInstallmentCount ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Analysis failed");
       setOpen(false);
@@ -65,6 +70,7 @@ export function DocumentReviewButton({
         documentId={documentId}
         filename={filename}
         initialObligations={obligations}
+        expectedInstallmentCount={expectedInstallmentCount}
         loading={loading}
         onClose={() => setOpen(false)}
         onSaved={() => router.refresh()}

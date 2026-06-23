@@ -8,6 +8,7 @@ import { AppError } from "@/utils/errors";
 import { financialStatePersistence, DEFAULT_USER_ID } from "@/services/financial-state/financial-state.persistence";
 
 import {
+  inferExpectedInstallmentCount,
   parseInstallmentScheduleFromText,
   resolveObligationsFromDocumentText,
 } from "./installment-schedule.parser";
@@ -27,6 +28,8 @@ export interface ExtractedDocumentPayload {
   documentId: string;
   rawText: string;
   obligations: ExtractedObligation[];
+  /** From contract wording (e.g. "4-Step Quarterly"); null if unknown. */
+  expectedInstallmentCount: number | null;
 }
 
 export function mapFrequency(freq: string | undefined): FinancialEventFrequency {
@@ -128,12 +131,17 @@ export class DocumentExtractionService {
       llmObligations = [];
     }
 
+    const expectedInstallmentCount = inferExpectedInstallmentCount(
+      doc.extractedText,
+    );
+
     const scheduleOnly = parseInstallmentScheduleFromText(doc.extractedText);
     if (scheduleOnly.length >= 2) {
       return {
         documentId,
         rawText: doc.extractedText,
         obligations: scheduleOnly.map(normalizeObligation),
+        expectedInstallmentCount,
       };
     }
 
@@ -146,6 +154,7 @@ export class DocumentExtractionService {
       documentId,
       rawText: doc.extractedText,
       obligations: resolved.map(normalizeObligation),
+      expectedInstallmentCount,
     };
   }
 

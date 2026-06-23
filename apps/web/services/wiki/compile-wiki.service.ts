@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { formatDateIso, formatLocalDateIso } from "@/services/financial-state/dates";
 import { wikiLink, wikiSlug } from "@/services/wiki/wiki-slug";
 
 export interface WikiFile {
@@ -39,7 +40,13 @@ function formatMoney(amount: number, currency = "CAD"): string {
 function formatDate(value: Date | string | null | undefined): string {
   if (!value) return "—";
   const d = value instanceof Date ? value : new Date(value);
-  return d.toISOString().slice(0, 10);
+  return formatDateIso(d);
+}
+
+function formatUploadedDate(value: Date | string | null | undefined): string {
+  if (!value) return "—";
+  const d = value instanceof Date ? value : new Date(value);
+  return formatLocalDateIso(d);
 }
 
 function excerpt(text: string, max = EXCERPT_CHARS): string {
@@ -166,7 +173,7 @@ function buildDocumentPage(input: {
     `- ID: \`${input.id}\``,
     `- Type: ${input.mimeType}`,
     `- Size: ${input.sizeBytes.toLocaleString()} bytes`,
-    `- Uploaded: ${formatDate(input.createdAt)}`,
+    `- Uploaded: ${formatUploadedDate(input.createdAt)}`,
     `- Extraction: ${input.extractionStatus}`,
     "",
     "## Related",
