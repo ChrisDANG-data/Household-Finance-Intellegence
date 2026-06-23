@@ -7,6 +7,10 @@ export interface PlaidConnectionStatus {
   connected: boolean;
   item_id: string | null;
   user_id: string;
+  /** When the Plaid item was linked or re-linked */
+  linked_at: string | null;
+  /** When balances were last synced from Plaid */
+  last_synced_at: string | null;
   updated_at: string | null;
 }
 
@@ -46,17 +50,29 @@ export class PlaidItemService {
   async getConnectionStatus(
     userId: string = DEFAULT_USER_ID,
   ): Promise<PlaidConnectionStatus> {
-    const row = await prisma.plaidItem.findFirst({
-      where: { userId },
-      orderBy: { updatedAt: "desc" },
-      select: { itemId: true, updatedAt: true },
-    });
+    const [row, lastSnapshot] = await Promise.all([
+      prisma.plaidItem.findFirst({
+        where: { userId },
+        orderBy: { updatedAt: "desc" },
+        select: { itemId: true, updatedAt: true },
+      }),
+      prisma.plaidBalanceHistory.findFirst({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        select: { createdAt: true },
+      }),
+    ]);
+
+    const linkedAt = row?.updatedAt.toISOString() ?? null;
+    const lastSyncedAt = lastSnapshot?.createdAt.toISOString() ?? null;
 
     return {
       connected: Boolean(row),
       item_id: row?.itemId ?? null,
       user_id: userId,
-      updated_at: row?.updatedAt.toISOString() ?? null,
+      linked_at: linkedAt,
+      last_synced_at: lastSyncedAt,
+      updated_at: lastSyncedAt ?? linkedAt,
     };
   }
 

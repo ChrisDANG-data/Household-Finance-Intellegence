@@ -16,7 +16,7 @@ export function EngineModuleLayout({
   return (
     <div
       className={cn(
-        "relative mx-auto px-4 pb-16 pt-28 sm:px-8 sm:pt-32",
+        "relative mx-auto px-4 pb-16 pt-8 sm:px-8 sm:pt-10",
         wide ? "max-w-6xl" : "max-w-5xl",
       )}
     >

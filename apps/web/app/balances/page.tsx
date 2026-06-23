@@ -8,7 +8,7 @@ export default function BalancesPage() {
     <EngineModuleLayout
       wide
       title="Account balances"
-      subtitle="Plaid balance history over time — separate from the 6-month forecast. Sync manually anytime; scheduled job runs once per UTC month."
+      subtitle="Disposable assets, Plaid balance history, and end-of-month sync — separate from the 6-month forecast."
     >
       <PlaidBalanceHistoryPanel />
     </EngineModuleLayout>

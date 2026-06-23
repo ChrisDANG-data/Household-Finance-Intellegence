@@ -159,7 +159,7 @@ Official flow ([Plaid balance docs](https://plaid.com/docs/api/products/balance/
 | `POST /api/integrations/plaid/balances` | Step 4 — `accounts/balance/get` + `plaid_balance_history` rows |
 | `GET /api/integrations/plaid/accounts?q=credit card` | Live per-account balances (credit card, checking, etc.) |
 | `GET /api/integrations/plaid/history` | Chart series + recent snapshots (separate from forecast) |
-| `POST /api/integrations/plaid/scheduled-sync` | Monthly job — skips if UTC month already synced (`force` to override) |
+| `POST /api/integrations/plaid/scheduled-sync` | End-of-month job — runs on last UTC day only; skips if month already synced (`force` to override) |
 | `GET /api/integrations/plaid/status` | Linked `item_id` (never returns `access_token`) |
 | `POST /api/integrations/plaid/sync` | Automation: direct balance if linked, else MCP fallback |
 
@@ -169,9 +169,12 @@ Access tokens are stored in `plaid_items` (server only).
 
 Per account per sync: `balance`, `year`, `month`, `snapshot_date`, `account_name`, `balance_delta` (vs previous reading for that account).
 
-- UI: `/balances` — line chart (legend = account names) + table
+**`financial_states.current_cash`** is updated from **checking accounts only** (Plaid `subtype: checking`). All linked accounts are still stored in `plaid_balance_history` for charts.
+
+- UI: `/balances` — disposable assets summary + line chart (legend = account names) + table
+- API: `GET /api/financial-state/disposable` — Plaid assets + ledger income − expenses − investments (current month); `POST` syncs Plaid first
 - Manual: **Sync now** on `/balances` or **Refresh balances** after Link
-- Scheduled: n8n `monthly-plaid-balance-snapshot.json` (cron `0 8 1 * *` UTC) → `POST /api/integrations/plaid/scheduled-sync`
+- Scheduled: n8n `monthly-plaid-balance-snapshot.json` (cron `0 23 28-31 * *` UTC; API runs only on the **last UTC day** of the month) → `POST /api/integrations/plaid/scheduled-sync`
 
 ### n8n AI Agent — per-account balance questions
 

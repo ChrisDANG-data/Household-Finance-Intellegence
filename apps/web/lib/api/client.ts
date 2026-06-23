@@ -179,6 +179,8 @@ export interface PlaidConnectionStatus {
   connected: boolean;
   item_id: string | null;
   user_id: string;
+  linked_at: string | null;
+  last_synced_at: string | null;
   updated_at: string | null;
   plaid_configured: boolean;
 }
@@ -259,4 +261,32 @@ export async function fetchPlaidBalanceHistory(): Promise<PlaidBalanceHistoryRes
   return parseApi(
     await fetch("/api/integrations/plaid/history", { cache: "no-store" }),
   );
+}
+
+export type DisposableAssetsSummary =
+  import("@/services/financial-state/disposable-assets.service").DisposableAssetsSummary;
+
+export async function fetchDisposableAssets(
+  userId = "default",
+): Promise<DisposableAssetsSummary> {
+  const data = await parseApi<{ summary: DisposableAssetsSummary }>(
+    await fetch(
+      `/api/financial-state/disposable?user_id=${encodeURIComponent(userId)}`,
+      { cache: "no-store" },
+    ),
+  );
+  return data.summary;
+}
+
+export async function syncDisposableAssets(
+  userId = "default",
+): Promise<DisposableAssetsSummary> {
+  const data = await parseApi<{ summary: DisposableAssetsSummary }>(
+    await fetch("/api/financial-state/disposable", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId }),
+    }),
+  );
+  return data.summary;
 }

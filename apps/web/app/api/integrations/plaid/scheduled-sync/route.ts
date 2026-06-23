@@ -11,7 +11,7 @@ interface ScheduledSyncBody {
   force?: boolean;
 }
 
-/** POST — monthly Plaid balance snapshot (skips if already synced this UTC month) */
+/** POST — last UTC day of month: /accounts/balance/get, persist history, update current_cash (checking only) */
 export async function POST(request: Request) {
   const correlationId = randomUUID();
   try {
@@ -41,9 +41,10 @@ export async function POST(request: Request) {
       correlationId,
       payload: { user_id: userId },
       result: result.skipped
-        ? { skipped: true, reason: "already_synced_this_month" }
+        ? { skipped: true, reason: result.skip_reason ?? "skipped" }
         : {
             account_count: result.account_count,
+            checking_account_count: result.checking_account_count,
             current_cash: result.current_cash,
             history_rows: result.history.length,
           },

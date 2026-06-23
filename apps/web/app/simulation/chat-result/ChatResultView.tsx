@@ -117,7 +117,7 @@ function AffordabilityBullets({ text }: { text: string }) {
 
 function EmptyResultState() {
   return (
-    <div className="mx-auto flex min-h-[55vh] max-w-lg flex-col items-center justify-center gap-5 px-4 pt-28 text-center sm:pt-32">
+    <div className="mx-auto flex min-h-[55vh] max-w-lg flex-col items-center justify-center gap-5 px-4 pt-8 text-center sm:pt-10">
       <div className="flex size-14 items-center justify-center rounded-2xl bg-muted/60">
         <MessageCircleQuestion className="size-7 text-muted-foreground" />
       </div>
@@ -156,7 +156,7 @@ export function ChatResultView() {
 
   if (result === undefined) {
     return (
-      <div className="mx-auto flex min-h-[55vh] max-w-lg flex-col items-center justify-center gap-3 px-4 pt-28 text-center sm:pt-32">
+      <div className="mx-auto flex min-h-[55vh] max-w-lg flex-col items-center justify-center gap-3 px-4 pt-8 text-center sm:pt-10">
         <div className="size-8 animate-pulse rounded-full bg-muted" />
         <p className="text-sm text-muted-foreground">Loading result…</p>
       </div>

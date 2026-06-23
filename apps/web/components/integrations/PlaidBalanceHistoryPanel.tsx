@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 
+import { DisposableAssetsCard } from "@/components/integrations/DisposableAssetsCard";
 import { PlaidBalanceLineChart } from "@/components/integrations/PlaidBalanceLineChart";
-import { PlaidConnect } from "@/components/integrations/PlaidConnect";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -14,10 +14,11 @@ import {
   type PlaidBalanceHistoryResponse,
 } from "@/lib/api/client";
 
-function formatMoney(amount: number, currency: string): string {
+function formatMoney(amount: number): string {
   return new Intl.NumberFormat("en-CA", {
     style: "currency",
-    currency: currency.length === 3 ? currency : "CAD",
+    currency: "CAD",
+    currencyDisplay: "narrowSymbol",
     maximumFractionDigits: 2,
   }).format(amount);
 }
@@ -25,7 +26,7 @@ function formatMoney(amount: number, currency: string): string {
 function formatDelta(delta: number | null): string {
   if (delta == null) return "—";
   const sign = delta > 0 ? "+" : "";
-  return `${sign}${formatMoney(delta, "CAD")}`;
+  return `${sign}${formatMoney(delta)}`;
 }
 
 export function PlaidBalanceHistoryPanel() {
@@ -33,6 +34,7 @@ export function PlaidBalanceHistoryPanel() {
   const [data, setData] = useState<PlaidBalanceHistoryResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [disposableRefresh, setDisposableRefresh] = useState(0);
 
   const load = useCallback(async () => {
     try {
@@ -54,6 +56,7 @@ export function PlaidBalanceHistoryPanel() {
     try {
       await syncPlaidBalances({ force });
       await load();
+      setDisposableRefresh((n) => n + 1);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sync failed");
@@ -64,7 +67,13 @@ export function PlaidBalanceHistoryPanel() {
 
   return (
     <div className="space-y-8">
-      <PlaidConnect onSynced={() => void load()} />
+      <DisposableAssetsCard
+        refreshKey={disposableRefresh}
+        onSynced={() => {
+          void load();
+          setDisposableRefresh((n) => n + 1);
+        }}
+      />
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
@@ -123,7 +132,7 @@ export function PlaidBalanceHistoryPanel() {
                     <td className="py-2 pr-3">{row.month}</td>
                     <td className="py-2 pr-3">{row.account_name}</td>
                     <td className="py-2 pr-3 text-right tabular-nums">
-                      {formatMoney(row.balance, row.currency)}
+                      {formatMoney(row.balance)}
                     </td>
                     <td
                       className={`py-2 text-right tabular-nums ${

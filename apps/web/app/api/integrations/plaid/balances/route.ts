@@ -11,7 +11,7 @@ interface BalancesBody {
   scheduled?: boolean;
 }
 
-/** POST — /accounts/balance/get, persist history, update current_cash */
+/** POST — /accounts/balance/get, persist history, update current_cash (checking accounts only) */
 export async function POST(request: Request) {
   try {
     const body = (await request.json().catch(() => ({}))) as BalancesBody;

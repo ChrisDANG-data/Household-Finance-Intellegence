@@ -57,6 +57,14 @@ export function isDateInMonth(date: Date, month: string): boolean {
   return dateToMonth(date) === month;
 }
 
+/** True when `date` is the last calendar day of its UTC month. */
+export function isLastUtcDayOfMonth(date: Date = new Date()): boolean {
+  const tomorrow = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1),
+  );
+  return tomorrow.getUTCDate() === 1;
+}
+
 export function isEventActiveInMonth(
   startDate: Date,
   endDate: Date | null | undefined,

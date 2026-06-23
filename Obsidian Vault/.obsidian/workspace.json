@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "01_Architecture/INTEGRATIONS.md",
+                "file": "Events/cmpmtqdjo000mvar83y7eaz9t.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "INTEGRATIONS"
+              "title": "cmpmtqdjo000mvar83y7eaz9t"
             }
           }
         ]
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "insurance",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -74,7 +74,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -182,13 +183,16 @@
   },
   "active": "5396d30522773b89",
   "lastOpenFiles": [
+    "Categories/car-insurance.md",
+    "Events/cmpmtqdjo000mvar83y7eaz9t.md",
+    "Ledger/Events.md",
+    "01_Architecture/DEPENDENCIES.md",
+    "01_Architecture/ARCHITECTURE.md",
+    "01_Architecture/INTEGRATIONS.md",
     "03_Build_Log/2026-06-10_Session.md",
     "02_Decisions/2026-06-10_Obsidian_Engineering_Wiki.md",
     "09_Code_From_Chat/2026-06-10_obsidian-dual-wiki-setup.md",
     "02_Decisions/2026-05-31_Obsidian_Engineering_Wiki.md",
-    "01_Architecture/INTEGRATIONS.md",
-    "01_Architecture/DEPENDENCIES.md",
-    "01_Architecture/ARCHITECTURE.md",
     "00_Dashboard/Project Dashboard.md",
     "Household Index.md",
     "README.md",
@@ -203,7 +207,6 @@
     "Documents/cmpmtwf0g000nvar8n6dlc516.md",
     "Documents/cmplfo5n60003va7crukns3js.md",
     "Documents/cmplf4qke0000va7c04124fi3.md",
-    "Documents/cmpl9hcv40000va94rou2g77t.md",
-    "Categories/car-insurance.md"
+    "Documents/cmpl9hcv40000va94rou2g77t.md"
   ]
 }

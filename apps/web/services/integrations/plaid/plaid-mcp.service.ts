@@ -6,7 +6,7 @@ import { AppError } from "@/utils/errors";
 
 import {
   mcpResponseToSnapshot,
-  sumAvailableBalances,
+  sumCheckingBalances,
   type PlaidBalanceSnapshot,
 } from "./plaid-balance.types";
 
@@ -78,7 +78,7 @@ export class PlaidMcpService {
   }
 
   summarizeCurrentCash(snapshot: PlaidBalanceSnapshot): number {
-    return Number(sumAvailableBalances(snapshot.accounts).toFixed(2));
+    return sumCheckingBalances(snapshot.accounts);
   }
 }
 
