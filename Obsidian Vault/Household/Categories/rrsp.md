@@ -5,8 +5,8 @@ Back to [[Household/README]].
 ## Source documents
 
 ## Ledger events
-- [[Household/Events/cmqqyyqf80003l4040i4ai8ti]] — $300.00 / one_time
 - [[Household/Events/cmqqz5qhe0007l404ko2abn8y]] — $300.00 / monthly
+- [[Household/Events/cmqqyyqf80003l4040i4ai8ti]] — $300.00 / one_time
 - [[Household/Events/cmqb9x1s00005ky04pfdl058x]] — $300.00 / one_time
 - [[Household/Events/cmpzrvctg0001jj04xv8vp2me]] — $300.00 / one_time
 - [[Household/Events/cmpzrxr7l0001l704sv7sauno]] — $300.00 / one_time

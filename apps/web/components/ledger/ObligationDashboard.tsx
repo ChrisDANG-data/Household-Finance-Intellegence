@@ -11,6 +11,8 @@ import { deleteObligation } from "@/lib/api/client";
 import type { SerializedObligation } from "@/lib/serializers";
 import type { MonthlyObligationSummary } from "@/services/financial-state/obligation-summary";
 
+const RECENT_LEDGER_ITEMS = 10;
+
 function formatMoney(amount: number, currency: string): string {
   return new Intl.NumberFormat("en-CA", {
     style: "currency",
@@ -36,6 +38,7 @@ export function ObligationDashboard({
 
   const obligations = initialObligations;
   const summary = initialSummary;
+  const recentObligations = obligations.slice(0, RECENT_LEDGER_ITEMS);
 
   async function handleDelete(id: string) {
     if (!window.confirm("Delete this obligation?")) return;
@@ -79,6 +82,12 @@ export function ObligationDashboard({
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Obligations (from documents)</CardTitle>
+          {obligations.length > RECENT_LEDGER_ITEMS ? (
+            <p className="text-xs text-muted-foreground">
+              Showing {RECENT_LEDGER_ITEMS} most recent of {obligations.length}{" "}
+              total
+            </p>
+          ) : null}
         </CardHeader>
         <CardContent className="space-y-3">
           {error && (
@@ -89,7 +98,7 @@ export function ObligationDashboard({
               No obligations yet. Upload a document to extract payment obligations automatically.
             </p>
           ) : (
-            obligations.map((o) => (
+            recentObligations.map((o) => (
               <div
                 key={o.id}
                 className="flex flex-wrap items-start justify-between gap-3 rounded-lg border border-border p-4"

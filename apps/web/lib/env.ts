@@ -22,13 +22,27 @@ export const env = {
 
   ai: {
     openaiApiKey: () => optionalEnv("OPENAI_API_KEY"),
-    /** OpenRouter key (preferred for Whisper STT when set). */
+    /** OpenRouter key (optional proxy for Whisper STT). */
     openRouterApiKey: () => optionalEnv("OPENROUTER_API_KEY"),
-    /** Whisper / STT: OPENROUTER_API_KEY if set, else OPENAI_API_KEY. */
+    /** openai | openrouter | auto — auto tries OpenRouter then OpenAI on quota errors. */
+    sttCloudPreference: (): "openai" | "openrouter" | "auto" => {
+      const raw = optionalEnv("STT_CLOUD_PROVIDER", "auto").toLowerCase();
+      if (raw === "openai" || raw === "openrouter") return raw;
+      return "auto";
+    },
+    hasCloudStt: () => {
+      const openRouter = optionalEnv("OPENROUTER_API_KEY").trim();
+      const openAi = optionalEnv("OPENAI_API_KEY").trim();
+      return Boolean(openRouter || openAi);
+    },
+    /** Primary cloud STT key (legacy — prefer explicit OpenRouter/OpenAI routing). */
     whisperApiKey: () => {
+      const pref = optionalEnv("STT_CLOUD_PROVIDER", "auto").toLowerCase();
       const openRouter = optionalEnv("OPENROUTER_API_KEY");
+      const openAi = optionalEnv("OPENAI_API_KEY");
+      if (pref === "openai") return openAi;
       if (openRouter) return openRouter;
-      return optionalEnv("OPENAI_API_KEY");
+      return openAi;
     },
     anthropicApiKey: () => optionalEnv("ANTHROPIC_API_KEY"),
     geminiApiKey: () => optionalEnv("GOOGLE_API_KEY", optionalEnv("GEMINI_API_KEY")),

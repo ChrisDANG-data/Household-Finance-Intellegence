@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 type SpeechRecognitionCtor = new () => SpeechRecognition;
 
 type VoiceMode = "browser" | "record";
-export type RecordingSttProvider = "local" | "gemini";
+export type RecordingSttProvider = "local" | "gemini" | "whisper";
 
 function preferRecordKey(stt: RecordingSttProvider): string {
   return `fi-voice-prefer-record-${stt}`;
@@ -36,7 +36,7 @@ export interface UseGoogleVoiceInputOptions {
   onError?: (message: string) => void;
   /** When true, use mic recording + /api/stt if browser speech fails or is blocked. */
   recordingFallbackEnabled?: boolean;
-  /** STT backend for recorded audio (Claude → local, Gemini → gemini). */
+  /** STT backend for recorded audio (Claude → cloud/local Whisper, Gemini → gemini). */
   recordingSttProvider?: RecordingSttProvider;
   lang?: string;
 }
@@ -45,6 +45,9 @@ const UNSUPPORTED_MSG =
   "Voice needs Chrome or Edge. Type your question.";
 
 function browserBlockedMessage(stt: RecordingSttProvider | undefined): string {
+  if (stt === "whisper") {
+    return "Browser speech could not reach Google. Cloud Whisper will transcribe your recording — or type your question.";
+  }
   if (stt === "local") {
     return "Browser speech could not reach Google. Local voice transcription will be used when you record — or type your question.";
   }
@@ -160,15 +163,20 @@ export function useGoogleVoiceInput({
         try {
           json = JSON.parse(raw) as typeof json;
         } catch {
-          const hint =
+          const isHtml =
             raw.trimStart().startsWith("<!DOCTYPE") ||
-            raw.trimStart().startsWith("<html")
-              ? `Voice API unavailable (${res.status}). Is npm run dev running?`
-              : `Voice transcription failed (${res.status}).`;
+            raw.trimStart().startsWith("<html");
+          const hint = isHtml
+            ? res.status >= 500
+              ? `Voice API server error (${res.status}). Restart: cd apps/web && npm run dev — then check the terminal for compile errors.`
+              : `Voice API unavailable (${res.status}). Is npm run dev running on http://localhost:3000?`
+            : `Voice transcription failed (${res.status}).`;
           throw new Error(hint);
         }
         if (!res.ok || !json.success || !json.data?.text) {
-          throw new Error(json.error?.message ?? "Transcription failed");
+          const apiMsg = json.error?.message?.trim();
+          if (apiMsg) throw new Error(apiMsg);
+          throw new Error(`Transcription failed (${res.status}).`);
         }
         gotTranscriptRef.current = true;
         onTranscript(json.data.text, true);

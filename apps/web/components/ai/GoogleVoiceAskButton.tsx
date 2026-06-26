@@ -27,16 +27,24 @@ export function GoogleVoiceAskButton({
   const {
     provider,
     geminiAvailable,
-    whisperAvailable: localSttAvailable,
+    cloudSttAvailable,
+    localSttAvailable,
     loaded: providerLoaded,
   } = useAiProvider();
 
   const recordingSttProvider: RecordingSttProvider =
-    provider === "claude" ? "local" : "gemini";
+    provider === "gemini"
+      ? "gemini"
+      : cloudSttAvailable
+        ? "whisper"
+        : "local";
 
   /** Enable record+STT when any backend exists; stay enabled while config loads. */
   const recordingFallback =
-    !providerLoaded || localSttAvailable || geminiAvailable;
+    !providerLoaded ||
+    cloudSttAvailable ||
+    localSttAvailable ||
+    geminiAvailable;
 
   useEffect(() => {
     sessionStorage.removeItem("fi-voice-prefer-record");
@@ -44,6 +52,7 @@ export function GoogleVoiceAskButton({
       sessionStorage.removeItem("fi-voice-prefer-record-gemini");
     } else {
       sessionStorage.removeItem("fi-voice-prefer-record-local");
+      sessionStorage.removeItem("fi-voice-prefer-record-whisper");
     }
   }, [provider]);
 

@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { SerializedFinancialEvent } from "@/lib/serializers/financial-state";
+import type { ApiResponse } from "@/types/api";
 import {
   FINANCIAL_EVENT_OWNERS,
   OWNER_LABELS,
@@ -29,6 +30,8 @@ import {
 
 type EventType = "income" | "recurring_expense" | "investment";
 type Frequency = "monthly" | "weekly" | "yearly" | "quarterly" | "one_time";
+
+const RECENT_LEDGER_ITEMS = 10;
 
 const FREQUENCIES: { value: Frequency; label: string }[] = [
   { value: "monthly", label: "Monthly" },
@@ -139,9 +142,16 @@ export function FinancialEventForm() {
         }),
       });
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(body?.error ?? `Server responded with ${res.status}`);
+      const body = (await res
+        .json()
+        .catch(() => null)) as ApiResponse<{ event: SerializedFinancialEvent }> | null;
+
+      if (!res.ok || !body?.success) {
+        const message =
+          body && !body.success
+            ? body.error.message
+            : `Server responded with ${res.status}`;
+        throw new Error(message);
       }
 
       setSuccess("Event saved successfully.");
@@ -174,6 +184,8 @@ export function FinancialEventForm() {
 
   const selectClasses =
     "flex h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+
+  const recentEvents = events.slice(0, RECENT_LEDGER_ITEMS);
 
   return (
     <div className="space-y-6">
@@ -383,6 +395,11 @@ export function FinancialEventForm() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Recorded events</CardTitle>
+          {events.length > RECENT_LEDGER_ITEMS ? (
+            <p className="text-xs text-muted-foreground">
+              Showing {RECENT_LEDGER_ITEMS} most recent of {events.length} total
+            </p>
+          ) : null}
         </CardHeader>
         <CardContent className="space-y-3">
           {loadingEvents ? (
@@ -395,7 +412,7 @@ export function FinancialEventForm() {
               No events yet. Use the form above to add income or expenses.
             </p>
           ) : (
-            events.map((ev) => (
+            recentEvents.map((ev) => (
               <div
                 key={ev.id}
                 className="flex flex-wrap items-start justify-between gap-3 rounded-lg border border-border p-4"

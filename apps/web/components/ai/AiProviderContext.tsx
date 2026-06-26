@@ -21,7 +21,8 @@ import {
 const DEFAULT_CONFIG: AiProviderConfig = {
   claude: false,
   gemini: false,
-  whisper: false,
+  stt_cloud: false,
+  stt_local: false,
   default: "claude",
 };
 
@@ -32,7 +33,8 @@ interface AiProviderContextValue {
   loaded: boolean;
   claudeAvailable: boolean;
   geminiAvailable: boolean;
-  whisperAvailable: boolean;
+  cloudSttAvailable: boolean;
+  localSttAvailable: boolean;
 }
 
 const AiProviderContext = createContext<AiProviderContextValue | null>(null);
@@ -90,7 +92,8 @@ export function AiProviderProvider({ children }: { children: ReactNode }) {
       loaded,
       claudeAvailable: config.claude,
       geminiAvailable: config.gemini,
-      whisperAvailable: config.whisper,
+      cloudSttAvailable: config.stt_cloud,
+      localSttAvailable: config.stt_local,
     }),
     [provider, setProvider, config, loaded],
   );

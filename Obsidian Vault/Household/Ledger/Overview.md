@@ -7,8 +7,8 @@ Back to [[Household/README]].
 - Monthly income (state): $0.00
 
 ## Counts
-- Documents: 13
-- Ledger events: 40
-- Extracted obligations (unconfirmed): 6
+- Documents: 17
+- Ledger events: 45
+- Extracted obligations (unconfirmed): 9
 
 See [[Household/Ledger/Events]] for itemized events.

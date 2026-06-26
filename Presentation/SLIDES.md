@@ -113,7 +113,35 @@ LangGraph (optional) ← scenario chat routing
 
 ---
 
-## Slide 7 — Thank you / Q&A
+## Slide 7 — Evaluation strategy
+
+**Three layers — math, agent behavior, live smoke**
+
+| Layer | What we eval | Where | Pass target |
+|-------|----------------|-------|-------------|
+| **1 — CI (Vitest)** | Deterministic logic: forecasts, ledger lookups, parsers, Plaid math, routing | `apps/web` — **26+ test suites**, GitHub Actions on every push | **Green CI** — same input → same output, no live LLM |
+| **2 — n8n agent evals** | Telegram agent: **tool routing**, reply shape, similarity vs expected | `automation/n8n/eval/telegram-agent-eval-dataset.csv` + Evaluations tab (or Data tables / manual batch) | **≥ 8/10** rows pass after prompt tuning |
+| **3 — Manual smoke** | Real keys, real integrations | Telegram write → Ledger; Plaid Sync → `/balances`; `check-claude-api.ts` | One successful end-to-end path per demo |
+
+**What Layer 1 covers (examples)**
+
+- July closing balance, last payment dates, Plaid balance in chat
+- Car lease active months, house insurance installments
+- Document installment parser, risk tier rules, voice STT fallback
+
+**What Layer 2 covers (examples)**
+
+- “add expense grocery 85” → `add_ledger_event` (not Q&A tool)
+- “checking balance” → `get_plaid_account_balances` (not ledger write)
+- “total expenses in May 2026” → `ask_financial_question` (read-only)
+
+**Not in repo yet:** LangSmith, RAG retrieval golden sets, Playwright UI evals.
+
+**Speaker note:** Frame evals as *regression on the financial engine* plus *behavioral eval on the AI agent*. n8n evals catch wrong tool choice; Vitest catches wrong numbers. Together: don’t ship broken math or a bot that writes when it should read.
+
+---
+
+## Slide 8 — Thank you / Q&A
 
 **Household Financial Intelligence**
 

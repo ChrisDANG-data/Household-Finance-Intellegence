@@ -1099,7 +1099,7 @@ function WhatIfScenarioPanel({
 
 function ChatInput() {
   const router = useRouter();
-  const { provider } = useAiProvider();
+  const { provider, cloudSttAvailable } = useAiProvider();
   const [question, setQuestion] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -1219,8 +1219,11 @@ function ChatInput() {
           </Button>
         </form>
         <p className="mt-2 text-xs text-muted-foreground">
-          Voice: click mic, speak for 2+ seconds, click mic again to stop. Use
-          Chrome or Edge if the browser blocks speech.
+          {provider === "gemini"
+            ? "Voice (Gemini): uses Google speech. Free tier has daily quotas."
+            : cloudSttAvailable
+              ? "Voice (Claude): cloud Whisper via OpenAI (~$0.006/min). Set a real OPENAI_API_KEY in apps/web/.env if you see quota errors."
+              : "Voice (Claude): local Whisper on your PC. Click mic, speak 3+ seconds, click again. Add OPENAI_API_KEY in apps/web/.env for reliable paid cloud voice."}
         </p>
         {voiceError ? (
           <p className="mt-3 text-sm text-destructive" role="alert">

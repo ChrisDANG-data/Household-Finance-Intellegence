@@ -45,11 +45,14 @@ export function resolveProvider(requested?: AiProvider): AiProvider {
 export function getAiProviderAvailability(): AiProviderAvailability {
   const claude = isProviderConfigured("claude");
   const gemini = isProviderConfigured("gemini");
-  const whisper = process.env.LOCAL_STT_ENABLED !== "false";
+  const stt_cloud = env.ai.hasCloudStt();
+  const stt_local =
+    process.env.LOCAL_STT_ENABLED !== "false" && process.env.VERCEL !== "1";
   return {
     claude,
     gemini,
-    whisper,
+    stt_cloud,
+    stt_local,
     default: resolveProvider(),
   };
 }

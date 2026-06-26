@@ -10,6 +10,10 @@ Engineering notes live in vault root folders (`00_Dashboard`, `02_Decisions`, `0
 - [[Household/Ledger/Events]]
 
 ## Documents
+- [[Household/Documents/a2604572-9abc-420b-9234-7e9d51a2dd58]]
+- [[Household/Documents/03751ab4-58d5-4cb3-bff0-4207aa31e23e]]
+- [[Household/Documents/bc2d54b0-0a27-4d4d-9dc5-bd6e65f3646e]]
+- [[Household/Documents/0bcd0c81-05a2-486f-b0ac-ebba50315dee]]
 - [[Household/Documents/369b6c12-b101-4341-b16a-159bb550e222]]
 - [[Household/Documents/ec7b7cd1-278d-49f9-9311-c16081c6dc09]]
 - [[Household/Documents/03766da9-d0c9-47f3-8d6f-f7b50f335f4f]]
@@ -25,6 +29,7 @@ Engineering notes live in vault root folders (`00_Dashboard`, `02_Decisions`, `0
 - [[Household/Documents/f87438cc-46fc-499b-89f3-330b91e90865]]
 
 ## Categories
+- [[Household/Categories/business-insurance]]
 - [[Household/Categories/car-insurance]]
 - [[Household/Categories/car-lease]]
 - [[Household/Categories/grocery]]
@@ -35,7 +40,7 @@ Engineering notes live in vault root folders (`00_Dashboard`, `02_Decisions`, `0
 - [[Household/Categories/utilities]]
 
 ## Stats
-- Documents: 13
-- Categories: 8
-- Ledger events: 40
+- Documents: 17
+- Categories: 9
+- Ledger events: 45
 - Current cash: $100.00

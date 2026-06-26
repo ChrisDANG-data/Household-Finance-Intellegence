@@ -5,7 +5,8 @@ export const AI_PROVIDER_STORAGE_KEY = "fi-ai-provider";
 export interface AiProviderConfig {
   claude: boolean;
   gemini: boolean;
-  whisper: boolean;
+  stt_cloud: boolean;
+  stt_local: boolean;
   default: AiProvider;
 }
 

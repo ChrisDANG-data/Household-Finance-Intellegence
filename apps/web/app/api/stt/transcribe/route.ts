@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { transcribeWithFallback } from "@/services/ai/stt/transcribe-with-fallback";
 import { jsonError, jsonSuccess } from "@/utils/api-response";
 import { AppError, toAppError } from "@/utils/errors";
@@ -7,15 +8,18 @@ export const maxDuration = 120;
 
 const MAX_BYTES = 8 * 1024 * 1024;
 
-type SttProvider = "gemini" | "local";
+type SttProvider = "gemini" | "whisper" | "local";
 
 function parseProvider(raw: FormDataEntryValue | null): SttProvider {
-  if (raw === "local" || raw === "whisper") return "local";
+  if (raw === "whisper" || raw === "openai" || raw === "cloud") return "whisper";
   if (raw === "gemini") return "gemini";
+  if (raw === "local") return "local";
+  // Default: cloud Whisper when configured, else local Xenova
+  if (env.ai.whisperApiKey()?.trim()) return "whisper";
   return "local";
 }
 
-/** POST — transcribe audio: local Whisper (free) or Gemini multimodal */
+/** POST — transcribe audio: cloud Whisper, local Whisper, or Gemini */
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();

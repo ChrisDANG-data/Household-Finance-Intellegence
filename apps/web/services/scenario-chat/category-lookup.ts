@@ -77,6 +77,31 @@ function formatDate(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
+const RECURRING_FREQUENCIES = new Set([
+  "monthly",
+  "weekly",
+  "quarterly",
+  "yearly",
+]);
+
+/** Last scheduled payment: contract end for recurring streams, payment date for one-time. */
+function lastPaymentDateForEvent(event: FinancialEvent): Date | null {
+  if (RECURRING_FREQUENCIES.has(event.frequency)) {
+    return event.end_date ?? null;
+  }
+  return event.start_date;
+}
+
+function latestLastPaymentDate(events: FinancialEvent[]): Date | null {
+  let latest: Date | null = null;
+  for (const event of events) {
+    const paymentDate = lastPaymentDateForEvent(event);
+    if (!paymentDate) continue;
+    if (!latest || paymentDate > latest) latest = paymentDate;
+  }
+  return latest;
+}
+
 function eventMatchesQuery(event: FinancialEvent, message: string): boolean {
   const terms = queryCategoryTerms(message);
   const catTokens = categoryTokens(event.category);
@@ -152,6 +177,18 @@ function isCoveragePeriodQuestion(message: string): boolean {
   );
 }
 
+function isLastPaymentDateQuestion(message: string): boolean {
+  const lower = message.toLowerCase();
+  if (/\bhow much\b/.test(lower) && !/\bwhen\b/.test(lower)) return false;
+  return (
+    /\b(last|final)\s+payment\b/.test(lower) ||
+    /\bwhen\b.*\b(last|final)\b.*\bpayment\b/.test(lower) ||
+    (/\bwhen will\b/.test(lower) &&
+      /\bpayment\b/.test(lower) &&
+      /\b(last|final)\b/.test(lower))
+  );
+}
+
 function monthKeyFromDate(date: Date): string {
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
 }
@@ -196,6 +233,29 @@ export async function tryCategoryCoverageAnswer(
 }
 
 /**
+ * Answer "when is the last house insurance payment" with the latest payment date only.
+ */
+export async function tryLastPaymentDateAnswer(
+  message: string,
+): Promise<string | null> {
+  if (!isLastPaymentDateQuestion(message)) return null;
+
+  const state = await financialStatePersistence.loadState(DEFAULT_USER_ID);
+  let matches = state.events.filter((e) => eventMatchesQuery(e, message));
+  matches = dedupeEvents(matches);
+
+  if (matches.length === 0) return null;
+
+  const latestDate = latestLastPaymentDate(matches);
+  if (!latestDate) {
+    const label = categoryLabelFromMessage(message);
+    return `No end date scheduled — ${label} payments are ongoing.`;
+  }
+
+  return formatDate(latestDate);
+}
+
+/**
  * Answer category-specific payment questions from ledger events (no LLM).
  * Respects month + frequency (quarterly, one-time, etc.) like the forecast engine.
  */
@@ -209,6 +269,8 @@ export async function tryCategoryPaymentAnswer(
   ) {
     return null;
   }
+
+  if (isLastPaymentDateQuestion(message)) return null;
 
   if (!PAYMENT_QUERY.test(message)) return null;
 
