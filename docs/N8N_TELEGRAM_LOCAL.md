@@ -2,6 +2,8 @@
 
 Use this when **n8n Cloud trial ended**. Your Vercel app stays the same; only n8n runs locally (or on Railway).
 
+> **Daily startup (Postgres → app → ngrok → n8n):** see [`N8N_STARTUP.md`](./N8N_STARTUP.md).
+
 ## Architecture
 
 ```
@@ -161,7 +163,7 @@ After Google sign-in, if the browser shows **ERR_CONNECTION_RESET**, Google sent
 
 ---
 
-## Quick checklist
+## Quick checklist (first-time setup)
 
 - [ ] `docker compose up -d n8n`
 - [ ] ngrok HTTPS URL in `.env` + n8n recreated
@@ -169,3 +171,5 @@ After Google sign-in, if the browser shows **ERR_CONNECTION_RESET**, Google sent
 - [ ] Header Auth credential (Bearer token)
 - [ ] Import + activate `telegram-financial-qa.json`
 - [ ] Test message in Telegram
+
+**Every session after that:** [`N8N_STARTUP.md`](./N8N_STARTUP.md).

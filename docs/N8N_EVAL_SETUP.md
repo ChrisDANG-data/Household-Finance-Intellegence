@@ -2,6 +2,8 @@
 
 Use this after the workflow is **Published** on n8n Cloud.
 
+**Daily startup (Postgres, ngrok, app):** [`N8N_STARTUP.md`](./N8N_STARTUP.md).
+
 **New to evaluations?** Start with the minimal importable tutorial (no AI agent):  
 [`automation/n8n/eval/EVAL_TUTORIAL.md`](../automation/n8n/eval/EVAL_TUTORIAL.md) — import `eval-echo-tutorial.json` + `eval-echo-dataset.csv`.
 
