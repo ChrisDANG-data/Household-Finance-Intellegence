@@ -134,6 +134,7 @@ function isPartnerLedgerQuery(message: string): boolean {
  */
 export async function tryPartnerLedgerAnswer(
   message: string,
+  userId: string = DEFAULT_USER_ID,
 ): Promise<string | null> {
   if (!isPartnerLedgerQuery(message)) return null;
 
@@ -143,7 +144,7 @@ export async function tryPartnerLedgerAnswer(
   const targetMonth = extractTargetMonth(message);
   const refMonth = targetMonth ?? currentUtcMonth();
   const state = await financialStatePersistence.loadState(
-    DEFAULT_USER_ID,
+    userId,
     refMonth,
   );
 

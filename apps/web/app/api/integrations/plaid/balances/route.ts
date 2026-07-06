@@ -1,9 +1,8 @@
+import { withAuthenticatedHandler } from "@/lib/api/authenticated-handler";
+import { jsonSuccess } from "@/utils/api-response";
 import { plaidDirectSyncService } from "@/services/integrations/plaid/plaid-direct-sync.service";
-import { jsonError, jsonSuccess } from "@/utils/api-response";
-import { toAppError } from "@/utils/errors";
 
 interface BalancesBody {
-  user_id?: string;
   correlation_id?: string;
   /** When true, sync even if this month already has a scheduled snapshot */
   force?: boolean;
@@ -13,10 +12,10 @@ interface BalancesBody {
 
 /** POST — /accounts/balance/get, persist history, update current_cash (checking accounts only) */
 export async function POST(request: Request) {
-  try {
+  return withAuthenticatedHandler(async (userId) => {
     const body = (await request.json().catch(() => ({}))) as BalancesBody;
     const result = await plaidDirectSyncService.syncBalancesForUser(
-      body.user_id,
+      userId,
       body.correlation_id,
       {
         force: body.force,
@@ -25,7 +24,5 @@ export async function POST(request: Request) {
       },
     );
     return jsonSuccess(result);
-  } catch (error) {
-    return jsonError(toAppError(error));
-  }
+  });
 }

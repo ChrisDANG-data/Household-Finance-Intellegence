@@ -1,5 +1,5 @@
+import { withAuthenticatedHandler } from "@/lib/api/authenticated-handler";
 import { jsonSuccess } from "@/utils/api-response";
-import { withApiHandler } from "@/lib/api/route-handler";
 import { documentRagService } from "@/services/document-intelligence/indexing/rag.service";
 import { AppError } from "@/utils/errors";
 
@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 
 /** POST — Retrieve relevant document chunks without LLM generation (no API key needed) */
 export async function POST(request: Request) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const body = await request.json();
     const { query, topK } = body;
 
@@ -21,6 +21,7 @@ export async function POST(request: Request) {
     const result = await documentRagService.retrieve({
       query,
       topK: typeof topK === "number" ? topK : undefined,
+      userId,
     });
 
     return jsonSuccess(result);

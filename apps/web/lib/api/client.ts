@@ -287,26 +287,19 @@ export async function fetchPlaidBalanceHistory(): Promise<PlaidBalanceHistoryRes
 export type DisposableAssetsSummary =
   import("@/services/financial-state/disposable-assets.service").DisposableAssetsSummary;
 
-export async function fetchDisposableAssets(
-  userId = "default",
-): Promise<DisposableAssetsSummary> {
+export async function fetchDisposableAssets(): Promise<DisposableAssetsSummary> {
   const data = await parseApi<{ summary: DisposableAssetsSummary }>(
-    await fetch(
-      `/api/financial-state/disposable?user_id=${encodeURIComponent(userId)}`,
-      { cache: "no-store" },
-    ),
+    await fetch("/api/financial-state/disposable", { cache: "no-store" }),
   );
   return data.summary;
 }
 
-export async function syncDisposableAssets(
-  userId = "default",
-): Promise<DisposableAssetsSummary> {
+export async function syncDisposableAssets(): Promise<DisposableAssetsSummary> {
   const data = await parseApi<{ summary: DisposableAssetsSummary }>(
     await fetch("/api/financial-state/disposable", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: userId }),
+      body: JSON.stringify({}),
     }),
   );
   return data.summary;

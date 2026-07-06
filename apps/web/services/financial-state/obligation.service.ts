@@ -58,15 +58,18 @@ function validateName(name: string): void {
 }
 
 export class ObligationService {
-  async list(): Promise<SerializedObligation[]> {
+  async list(userId: string): Promise<SerializedObligation[]> {
     const rows = await prisma.financialObligation.findMany({
+      where: { userId },
       orderBy: [{ startDate: "desc" }, { name: "asc" }],
     });
     return rows.map(serializeObligation);
   }
 
-  async getById(id: string): Promise<SerializedObligation> {
-    const row = await prisma.financialObligation.findUnique({ where: { id } });
+  async getById(id: string, userId: string): Promise<SerializedObligation> {
+    const row = await prisma.financialObligation.findFirst({
+      where: { id, userId },
+    });
     if (!row) {
       throw new AppError("Obligation not found", {
         code: "NOT_FOUND",
@@ -76,7 +79,10 @@ export class ObligationService {
     return serializeObligation(row);
   }
 
-  async create(input: CreateObligationInput): Promise<SerializedObligation> {
+  async create(
+    userId: string,
+    input: CreateObligationInput,
+  ): Promise<SerializedObligation> {
     validateName(input.name);
     validateAmount(input.amount);
 
@@ -89,8 +95,8 @@ export class ObligationService {
     }
 
     if (input.sourceDocumentId) {
-      const doc = await prisma.document.findUnique({
-        where: { id: input.sourceDocumentId },
+      const doc = await prisma.document.findFirst({
+        where: { id: input.sourceDocumentId, userId },
       });
       if (!doc) {
         throw new AppError("sourceDocumentId not found", {
@@ -102,6 +108,7 @@ export class ObligationService {
 
     const row = await prisma.financialObligation.create({
       data: {
+        userId,
         name: input.name.trim(),
         category: input.category?.trim() || "general",
         amount: input.amount,
@@ -121,9 +128,10 @@ export class ObligationService {
 
   async update(
     id: string,
+    userId: string,
     input: UpdateObligationInput,
   ): Promise<SerializedObligation> {
-    await this.getById(id);
+    await this.getById(id, userId);
 
     if (input.name !== undefined) validateName(input.name);
     if (input.amount !== undefined) validateAmount(input.amount);
@@ -135,8 +143,8 @@ export class ObligationService {
     }
 
     if (input.sourceDocumentId) {
-      const doc = await prisma.document.findUnique({
-        where: { id: input.sourceDocumentId },
+      const doc = await prisma.document.findFirst({
+        where: { id: input.sourceDocumentId, userId },
       });
       if (!doc) {
         throw new AppError("sourceDocumentId not found", {
@@ -178,8 +186,10 @@ export class ObligationService {
     return serializeObligation(row);
   }
 
-  async delete(id: string): Promise<void> {
-    const row = await prisma.financialObligation.findUnique({ where: { id } });
+  async delete(id: string, userId: string): Promise<void> {
+    const row = await prisma.financialObligation.findFirst({
+      where: { id, userId },
+    });
     if (!row) {
       throw new AppError("Obligation not found", {
         code: "NOT_FOUND",
@@ -188,11 +198,13 @@ export class ObligationService {
     }
 
     const eventWhere: {
+      userId: string;
       startDate: Date;
       amount: number;
       category: string;
       sourceDocumentId?: string;
     } = {
+      userId,
       startDate: row.startDate,
       amount: Number(row.amount),
       category: row.category,
@@ -205,11 +217,16 @@ export class ObligationService {
     await prisma.financialObligation.delete({ where: { id } });
   }
 
-  async getMonthlySummary(month?: string): Promise<MonthlyObligationSummary> {
+  async getMonthlySummary(
+    userId: string,
+    month?: string,
+  ): Promise<MonthlyObligationSummary> {
     const targetMonth = month ?? currentUtcMonth();
     parseMonth(targetMonth);
 
-    const obligations = await prisma.financialObligation.findMany();
+    const obligations = await prisma.financialObligation.findMany({
+      where: { userId },
+    });
     return computeMonthlyObligationSummary(obligations, targetMonth);
   }
 }

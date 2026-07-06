@@ -48,15 +48,16 @@ function toReviewable(ob: ExtractedObligation): ReviewableObligation {
 }
 
 export class DocumentRepository {
-  async list(): Promise<SerializedDocument[]> {
+  async list(userId: string): Promise<SerializedDocument[]> {
     const docs = await prisma.document.findMany({
+      where: { userId },
       orderBy: { createdAt: "desc" },
     });
     return docs.map(serializeDocument);
   }
 
-  async getById(id: string): Promise<SerializedDocument> {
-    const doc = await prisma.document.findUnique({ where: { id } });
+  async getById(id: string, userId: string): Promise<SerializedDocument> {
+    const doc = await prisma.document.findFirst({ where: { id, userId } });
     if (!doc) {
       throw new AppError("Document not found", {
         code: "NOT_FOUND",
@@ -66,7 +67,10 @@ export class DocumentRepository {
     return serializeDocument(doc);
   }
 
-  async upload(input: UploadDocumentInput): Promise<DocumentUploadResult> {
+  async upload(
+    input: UploadDocumentInput,
+    userId: string,
+  ): Promise<DocumentUploadResult> {
     const sizeBytes = input.buffer.length;
     documentUploadService.validateMimeType(input.mimeType);
 
@@ -89,6 +93,7 @@ export class DocumentRepository {
     const doc = await prisma.document.create({
       data: {
         id: documentId,
+        userId,
         filename: input.filename,
         mimeType: input.mimeType,
         sizeBytes,

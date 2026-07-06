@@ -1,3 +1,4 @@
+import { resolveRequestUserId } from "@/lib/auth/request-user";
 import { EngineModuleLayout } from "@/components/EngineModuleLayout";
 import { DocumentLibrary } from "@/components/documents/DocumentLibrary";
 import { DocumentUploadPanel } from "@/components/documents/DocumentUploadPanel";
@@ -12,7 +13,8 @@ export default async function DocumentsEnginePage() {
   let dbError: string | null = null;
 
   try {
-    documents = await documentRepository.list();
+    const userId = await resolveRequestUserId();
+    documents = await documentRepository.list(userId);
   } catch (error) {
     dbError =
       error instanceof Error

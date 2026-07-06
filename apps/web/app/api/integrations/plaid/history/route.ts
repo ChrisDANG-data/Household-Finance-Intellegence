@@ -1,20 +1,18 @@
-import { plaidBalanceHistoryService } from "@/services/integrations/plaid/plaid-balance-history.service";
-import { DEFAULT_USER_ID } from "@/services/financial-state/financial-state.persistence";
+import { withAuthenticatedHandler } from "@/lib/api/authenticated-handler";
 import { jsonSuccess } from "@/utils/api-response";
+import { plaidBalanceHistoryService } from "@/services/integrations/plaid/plaid-balance-history.service";
 
-/** GET — balance history for charts and table (separate from forecast) */
+/** GET — Plaid balance history chart series + recent snapshots */
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get("user_id") ?? DEFAULT_USER_ID;
-  const limit = Math.min(
-    200,
-    Math.max(1, Number(searchParams.get("limit") ?? "50") || 50),
-  );
+  return withAuthenticatedHandler(async (userId) => {
+    const { searchParams } = new URL(request.url);
+    const limit = Number(searchParams.get("limit") ?? "30");
 
-  const [series, recent] = await Promise.all([
-    plaidBalanceHistoryService.getChartSeries(userId),
-    plaidBalanceHistoryService.listRecent(userId, limit),
-  ]);
+    const [series, recent] = await Promise.all([
+      plaidBalanceHistoryService.getChartSeries(userId),
+      plaidBalanceHistoryService.listRecent(userId, limit),
+    ]);
 
-  return jsonSuccess({ series, recent });
+    return jsonSuccess({ series, recent });
+  });
 }

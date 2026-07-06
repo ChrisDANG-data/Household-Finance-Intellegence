@@ -79,6 +79,36 @@ export const env = {
     provider: () => optionalEnv("TTS_PROVIDER"),
   },
 
+  auth: {
+    /** HMAC secret for session cookies (min 32 chars recommended). */
+    secret: () => {
+      if (!isAuthEnabled()) return optionalEnv("AUTH_SECRET", "dev-insecure-auth-secret");
+      const value = optionalEnv("AUTH_SECRET").trim();
+      if (!value) {
+        throw new Error(
+          "Missing AUTH_SECRET — required when auth is enabled (Vercel or AUTH_ENABLED=true)",
+        );
+      }
+      return value;
+    },
+    /** Allow POST /api/auth/register (default: true locally, false on Vercel unless set). */
+    allowRegistration: () => {
+      const flag = optionalEnv("AUTH_ALLOW_REGISTRATION").trim().toLowerCase();
+      if (flag === "true") return true;
+      if (flag === "false") return false;
+      return !env.isVercel();
+    },
+  },
+
+  security: {
+    /** 32-byte key as base64 or 64-char hex — encrypts Plaid tokens at rest. */
+    tokenEncryptionKey: () => optionalEnv("TOKEN_ENCRYPTION_KEY").trim(),
+    requiresTokenEncryption: () =>
+      env.isVercel() ||
+      optionalEnv("TOKEN_ENCRYPTION_KEY").trim().length > 0 ||
+      optionalEnv("REQUIRE_TOKEN_ENCRYPTION", "").toLowerCase() === "true",
+  },
+
   automation: {
     webhookToken: () => optionalEnv("AUTOMATION_WEBHOOK_TOKEN"),
     n8nCallbackUrl: () => optionalEnv("N8N_CALLBACK_URL"),
@@ -135,4 +165,12 @@ export const env = {
 
 export function isDevelopment(): boolean {
   return env.nodeEnv === "development";
+}
+
+/** Household login required — default on Vercel; opt-in locally via AUTH_ENABLED=true. */
+export function isAuthEnabled(): boolean {
+  const flag = process.env.AUTH_ENABLED?.trim().toLowerCase();
+  if (flag === "true") return true;
+  if (flag === "false") return false;
+  return env.isVercel();
 }

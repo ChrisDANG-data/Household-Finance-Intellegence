@@ -29,18 +29,32 @@ export class DocumentRagService {
    */
   async retrieve(query: DocumentRagQuery): Promise<DocumentRagResult> {
     const topK = query.topK ?? DEFAULT_TOP_K;
+    const userId = query.householdId ?? query.userId;
     const queryEmbedding = await documentEmbeddingService.embedText(query.query);
     const vecSql = vectorToSql(queryEmbedding);
 
-    const results = await prisma.$queryRawUnsafe<ChunkRow[]>(
-      `SELECT id, document_id, chunk_index, content, metadata,
-              1 - (embedding <=> $1::vector) AS similarity
-       FROM document_chunks
-       ORDER BY embedding <=> $1::vector
-       LIMIT $2`,
-      vecSql,
-      topK,
-    );
+    const results = userId
+      ? await prisma.$queryRawUnsafe<ChunkRow[]>(
+          `SELECT dc.id, dc.document_id, dc.chunk_index, dc.content, dc.metadata,
+                  1 - (dc.embedding <=> $1::vector) AS similarity
+           FROM document_chunks dc
+           INNER JOIN "Document" d ON d.id = dc.document_id
+           WHERE d.user_id = $3
+           ORDER BY dc.embedding <=> $1::vector
+           LIMIT $2`,
+          vecSql,
+          topK,
+          userId,
+        )
+      : await prisma.$queryRawUnsafe<ChunkRow[]>(
+          `SELECT id, document_id, chunk_index, content, metadata,
+                  1 - (embedding <=> $1::vector) AS similarity
+           FROM document_chunks
+           ORDER BY embedding <=> $1::vector
+           LIMIT $2`,
+          vecSql,
+          topK,
+        );
 
     return {
       chunks: results.map((row) => ({
@@ -57,11 +71,11 @@ export class DocumentRagService {
    */
   async ask(
     question: string,
-    options: { topK?: number; provider?: AiProvider } = {},
+    options: { topK?: number; provider?: AiProvider; userId?: string } = {},
   ): Promise<{ answer: string; sources: DocumentRagResult["chunks"] }> {
     const ragResult = await this.retrieve({
       query: question,
-      householdId: "default",
+      householdId: options.userId,
       topK: options.topK ?? DEFAULT_TOP_K,
     });
 

@@ -1,3 +1,4 @@
+import { assertMatchingUserId, resolveRequestUserId } from "@/lib/auth/request-user";
 import { generateFinancialAdvice } from "@/services/ai/advisor";
 import { financialStateEngine } from "@/services/financial-state";
 import type { RawFinancialEvent } from "@/types/financial-state";
@@ -5,7 +6,7 @@ import { jsonError, jsonSuccess } from "@/utils/api-response";
 import { AppError, toAppError } from "@/utils/errors";
 
 interface ExplainBody {
-  user_id: string;
+  user_id?: string;
   current_cash: number;
   monthly_income?: number;
   events: RawFinancialEvent[];
@@ -21,9 +22,11 @@ interface ExplainBody {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as ExplainBody;
+    const userId = await resolveRequestUserId();
+    assertMatchingUserId(userId, body?.user_id);
 
-    if (!body?.user_id || typeof body.current_cash !== "number") {
-      throw new AppError("user_id and current_cash are required", {
+    if (typeof body.current_cash !== "number") {
+      throw new AppError("current_cash is required", {
         code: "VALIDATION_ERROR",
         statusCode: 400,
       });
@@ -38,7 +41,7 @@ export async function POST(request: Request) {
 
     const { state, timeline, risk } = financialStateEngine.buildSnapshot(
       {
-        user_id: body.user_id,
+        user_id: userId,
         current_cash: body.current_cash,
         monthly_income: body.monthly_income,
         events: body.events,

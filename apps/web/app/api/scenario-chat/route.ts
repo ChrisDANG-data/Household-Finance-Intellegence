@@ -1,3 +1,4 @@
+import { assertMatchingUserId, resolveRequestUserId } from "@/lib/auth/request-user";
 import { handleScenarioMessage } from "@/services/scenario-chat";
 import { financialStateEngine } from "@/services/financial-state";
 import { financialStatePersistence } from "@/services/financial-state/financial-state.persistence";
@@ -14,10 +15,10 @@ export const maxDuration = 60;
 
 interface ScenarioChatBody {
   message: string;
-  user_id: string;
-  current_cash: number;
+  user_id?: string;
+  current_cash?: number;
   monthly_income?: number;
-  events: RawFinancialEvent[];
+  events?: RawFinancialEvent[];
   months?: number;
   forecast_start_month?: string;
   use_llm?: boolean;
@@ -27,19 +28,24 @@ interface ScenarioChatBody {
   langgraph_enabled?: boolean;
 }
 
-async function resolveFinancialState(body: ScenarioChatBody): Promise<FinancialState> {
-  if (body.events.length > 0) {
+async function resolveFinancialState(
+  userId: string,
+  body: ScenarioChatBody,
+): Promise<FinancialState> {
+  const events = body.events ?? [];
+
+  if (events.length > 0) {
     return financialStateEngine.createState({
-      user_id: body.user_id,
-      current_cash: body.current_cash,
+      user_id: userId,
+      current_cash: body.current_cash ?? 0,
       monthly_income: body.monthly_income,
-      events: body.events,
+      events,
       referenceMonth: body.forecast_start_month,
     });
   }
 
   const persisted = await financialStatePersistence.loadState(
-    body.user_id,
+    userId,
     body.forecast_start_month,
   );
 
@@ -48,20 +54,20 @@ async function resolveFinancialState(body: ScenarioChatBody): Promise<FinancialS
   }
 
   return financialStateEngine.createState({
-    user_id: body.user_id,
-    current_cash: body.current_cash,
+    user_id: userId,
+    current_cash: body.current_cash ?? 0,
     monthly_income: body.monthly_income,
-    events: body.events,
+    events,
     referenceMonth: body.forecast_start_month,
   });
 }
 
-async function runScenarioChat(body: ScenarioChatBody) {
-  const financial_state = await resolveFinancialState(body);
+async function runScenarioChat(userId: string, body: ScenarioChatBody) {
+  const financial_state = await resolveFinancialState(userId, body);
 
   return handleScenarioMessage({
     message: body.message,
-    user_id: body.user_id,
+    user_id: userId,
     financial_state,
     months: body.months,
     forecast_start_month: body.forecast_start_month,
@@ -84,14 +90,10 @@ export async function POST(request: Request) {
       });
     }
 
-    if (!body?.user_id || typeof body.current_cash !== "number") {
-      throw new AppError("user_id and current_cash are required", {
-        code: "VALIDATION_ERROR",
-        statusCode: 400,
-      });
-    }
+    const userId = await resolveRequestUserId();
+    assertMatchingUserId(userId, body.user_id);
 
-    if (!Array.isArray(body.events)) {
+    if (body.events !== undefined && !Array.isArray(body.events)) {
       throw new AppError("events must be an array", {
         code: "VALIDATION_ERROR",
         statusCode: 400,
@@ -102,7 +104,7 @@ export async function POST(request: Request) {
       body.stream === true ||
       request.headers.get("accept")?.includes("text/event-stream");
 
-    const response = await runScenarioChat(body);
+    const response = await runScenarioChat(userId, body);
 
     if (wantsStream) {
       const stream = createScenarioChatStream(response);

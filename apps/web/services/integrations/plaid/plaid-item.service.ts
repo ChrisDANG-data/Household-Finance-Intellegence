@@ -1,4 +1,9 @@
 import { prisma } from "@/lib/prisma";
+import {
+  decryptSecret,
+  encryptSecret,
+  isEncryptedValue,
+} from "@/lib/crypto/token-encryption";
 import { AppError } from "@/utils/errors";
 
 import { DEFAULT_USER_ID } from "@/services/financial-state/financial-state.persistence";
@@ -21,17 +26,18 @@ export class PlaidItemService {
     access_token: string;
   }): Promise<void> {
     const userId = input.user_id ?? DEFAULT_USER_ID;
+    const accessToken = encryptSecret(input.access_token);
 
     await prisma.plaidItem.upsert({
       where: { itemId: input.item_id },
       create: {
         userId,
         itemId: input.item_id,
-        accessToken: input.access_token,
+        accessToken,
       },
       update: {
         userId,
-        accessToken: input.access_token,
+        accessToken,
       },
     });
   }
@@ -44,7 +50,22 @@ export class PlaidItemService {
       orderBy: { updatedAt: "desc" },
     });
     if (!row) return null;
-    return { item_id: row.itemId, access_token: row.accessToken };
+
+    try {
+      return {
+        item_id: row.itemId,
+        access_token: decryptSecret(row.accessToken),
+      };
+    } catch (error) {
+      throw new AppError("Failed to decrypt Plaid access token", {
+        code: "DECRYPTION_ERROR",
+        statusCode: 500,
+        details:
+          isEncryptedValue(row.accessToken)
+            ? "Check TOKEN_ENCRYPTION_KEY matches the key used at encryption time"
+            : undefined,
+      });
+    }
   }
 
   async getConnectionStatus(

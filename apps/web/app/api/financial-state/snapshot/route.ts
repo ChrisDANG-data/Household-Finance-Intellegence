@@ -1,12 +1,10 @@
+import { assertMatchingUserId, resolveRequestUserId } from "@/lib/auth/request-user";
 import {
   serializeFinancialState,
   serializeTimeline,
 } from "@/lib/serializers/financial-state";
 import { financialStateEngine } from "@/services/financial-state";
-import {
-  DEFAULT_USER_ID,
-  financialStatePersistence,
-} from "@/services/financial-state/financial-state.persistence";
+import { financialStatePersistence } from "@/services/financial-state/financial-state.persistence";
 import type { RawFinancialEvent } from "@/types/financial-state";
 import { jsonError, jsonSuccess } from "@/utils/api-response";
 import { AppError, toAppError } from "@/utils/errors";
@@ -25,7 +23,8 @@ interface SnapshotBody {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as SnapshotBody;
-    const userId = body?.user_id ?? DEFAULT_USER_ID;
+    const userId = await resolveRequestUserId();
+    assertMatchingUserId(userId, body?.user_id);
     const months = body.months ?? 12;
 
     if (body.use_persisted) {

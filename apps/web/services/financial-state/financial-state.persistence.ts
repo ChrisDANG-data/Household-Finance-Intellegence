@@ -278,8 +278,11 @@ export class FinancialStatePersistence {
   async updateEvent(
     id: string,
     input: UpdateFinancialEventInput,
+    userId?: string,
   ): Promise<FinancialEvent> {
-    const existing = await prisma.financialEvent.findUnique({ where: { id } });
+    const existing = await prisma.financialEvent.findFirst({
+      where: userId ? { id, userId } : { id },
+    });
     if (!existing) {
       throw new AppError("Financial event not found", {
         code: "NOT_FOUND",
@@ -355,8 +358,10 @@ export class FinancialStatePersistence {
     return prismaEventToDomain(row);
   }
 
-  async deleteEvent(id: string): Promise<void> {
-    const existing = await prisma.financialEvent.findUnique({ where: { id } });
+  async deleteEvent(id: string, userId?: string): Promise<void> {
+    const existing = await prisma.financialEvent.findFirst({
+      where: userId ? { id, userId } : { id },
+    });
     if (!existing) {
       throw new AppError("Financial event not found", {
         code: "NOT_FOUND",

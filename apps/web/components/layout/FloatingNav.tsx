@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, Sparkles } from "lucide-react";
 
 import { AiProviderSwitch } from "@/components/ai/AiProviderSwitch";
+import { AuthNavActions } from "@/components/auth/AuthNavActions";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -70,6 +71,7 @@ export function FloatingNav() {
       </nav>
 
       <div className="flex shrink-0 items-center gap-2">
+        <AuthNavActions onHero={onHero} />
         <AiProviderSwitch compact className="hidden sm:inline-flex" />
         <Link
           href="/simulation"

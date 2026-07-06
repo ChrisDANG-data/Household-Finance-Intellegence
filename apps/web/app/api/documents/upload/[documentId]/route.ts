@@ -1,5 +1,5 @@
+import { withAuthenticatedHandler } from "@/lib/api/authenticated-handler";
 import { jsonSuccess } from "@/utils/api-response";
-import { withApiHandler } from "@/lib/api/route-handler";
 import { documentRepository } from "@/services/document-intelligence/document.repository";
 
 export const runtime = "nodejs";
@@ -10,9 +10,9 @@ export async function GET(
   _request: Request,
   context: { params: Promise<{ documentId: string }> },
 ) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const { documentId } = await context.params;
-    const document = await documentRepository.getById(documentId);
+    const document = await documentRepository.getById(documentId, userId);
     return jsonSuccess({ document });
   });
 }
@@ -22,8 +22,9 @@ export async function POST(
   _request: Request,
   context: { params: Promise<{ documentId: string }> },
 ) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const { documentId } = await context.params;
+    await documentRepository.getById(documentId, userId);
     const result = await documentRepository.runExtraction(documentId);
     return jsonSuccess({
       document: result.document,

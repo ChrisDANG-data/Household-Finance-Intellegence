@@ -157,6 +157,7 @@ export interface MonthLookupOptions {
   state?: FinancialState;
   startMonth?: string;
   forecastMonths?: number;
+  userId?: string;
 }
 
 /**
@@ -175,7 +176,7 @@ export async function tryDeterministicMonthAnswer(
   const state =
     options?.state ??
     (await financialStatePersistence.loadState(
-      DEFAULT_USER_ID,
+      options?.userId ?? DEFAULT_USER_ID,
       options?.startMonth ?? targetMonth,
     ));
   const startMonth = options?.startMonth ?? currentUtcMonth();

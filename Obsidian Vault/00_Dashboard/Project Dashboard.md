@@ -2,6 +2,7 @@
 type: dashboard
 project: Household Financial Intelligence
 updated: 2026-06-10
+source:
 ---
 
 # Project Dashboard

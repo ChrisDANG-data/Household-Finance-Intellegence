@@ -5,7 +5,7 @@ import { llmComplete } from "@/services/ai/llm/llm.service";
 import type { AiProvider } from "@/services/ai/llm/types";
 import { validateFinancialAmount } from "@/services/financial-state/amount-validation";
 import { AppError } from "@/utils/errors";
-import { financialStatePersistence, DEFAULT_USER_ID } from "@/services/financial-state/financial-state.persistence";
+import { financialStatePersistence } from "@/services/financial-state/financial-state.persistence";
 
 import {
   inferExpectedInstallmentCount,
@@ -173,10 +173,10 @@ export class DocumentExtractionService {
 
     if (options?.replaceExisting) {
       await prisma.financialObligation.deleteMany({
-        where: { sourceDocumentId: documentId },
+        where: { sourceDocumentId: documentId, userId: doc.userId },
       });
       await prisma.financialEvent.deleteMany({
-        where: { sourceDocumentId: documentId },
+        where: { sourceDocumentId: documentId, userId: doc.userId },
       });
     }
 
@@ -196,6 +196,7 @@ export class DocumentExtractionService {
     for (const ob of saveable) {
       await prisma.financialObligation.create({
         data: {
+          userId: doc.userId,
           name: ob.name,
           category: ob.category,
           amount: ob.amount,
@@ -213,7 +214,7 @@ export class DocumentExtractionService {
         eventFrequency === "one_time" ? "one_time_expense" : "recurring_expense";
 
       await financialStatePersistence.createEvent({
-        user_id: DEFAULT_USER_ID,
+        user_id: doc.userId,
         type: eventType,
         category: ob.category || "other",
         amount: ob.amount,

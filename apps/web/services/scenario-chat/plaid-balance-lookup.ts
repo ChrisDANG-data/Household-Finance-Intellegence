@@ -72,14 +72,15 @@ function formatFromCachedHistory(
  */
 export async function tryPlaidBalanceAnswer(
   message: string,
+  userId: string = DEFAULT_USER_ID,
 ): Promise<string | null> {
   if (!isPlaidBalanceQuery(message)) return null;
 
   try {
-    const summary = await disposableAssetsService.getSummary(DEFAULT_USER_ID);
+    const summary = await disposableAssetsService.getSummary(userId);
 
     if (!summary.plaid_connected) {
-      const recent = await plaidBalanceHistoryService.listRecent(DEFAULT_USER_ID, 20);
+      const recent = await plaidBalanceHistoryService.listRecent(userId, 20);
       if (recent.length > 0) {
         return formatFromCachedHistory(recent);
       }
@@ -105,7 +106,7 @@ export async function tryPlaidBalanceAnswer(
       `Plaid assets total: ${formatMoney(summary.plaid_assets_total)}`,
     ].join("\n");
   } catch (error) {
-    const recent = await plaidBalanceHistoryService.listRecent(DEFAULT_USER_ID, 20);
+    const recent = await plaidBalanceHistoryService.listRecent(userId, 20);
     if (recent.length > 0) {
       return formatFromCachedHistory(recent);
     }

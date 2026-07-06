@@ -1118,7 +1118,6 @@ function ChatInput() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: trimmed,
-          user_id: "default",
           current_cash: 0,
           events: [],
           months: 6,

@@ -1,5 +1,5 @@
+import { withAuthenticatedHandler } from "@/lib/api/authenticated-handler";
 import { jsonSuccess } from "@/utils/api-response";
-import { withApiHandler } from "@/lib/api/route-handler";
 import {
   obligationService,
   type UpdateObligationInput,
@@ -10,9 +10,9 @@ export async function GET(
   _request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const { id } = await context.params;
-    const obligation = await obligationService.getById(id);
+    const obligation = await obligationService.getById(id, userId);
     return jsonSuccess({ obligation });
   });
 }
@@ -22,10 +22,10 @@ export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const { id } = await context.params;
     const body = (await request.json()) as UpdateObligationInput;
-    const obligation = await obligationService.update(id, body);
+    const obligation = await obligationService.update(id, userId, body);
     return jsonSuccess({ obligation });
   });
 }
@@ -35,9 +35,9 @@ export async function DELETE(
   _request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const { id } = await context.params;
-    await obligationService.delete(id);
+    await obligationService.delete(id, userId);
     return jsonSuccess({ deleted: true });
   });
 }

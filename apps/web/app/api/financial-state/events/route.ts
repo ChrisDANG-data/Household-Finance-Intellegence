@@ -1,17 +1,14 @@
+import { withAuthenticatedHandler } from "@/lib/api/authenticated-handler";
 import { jsonSuccess } from "@/utils/api-response";
-import { withApiHandler } from "@/lib/api/route-handler";
 import { serializeFinancialEvent } from "@/lib/serializers/financial-state";
 import {
-  DEFAULT_USER_ID,
   financialStatePersistence,
   type CreateFinancialEventInput,
 } from "@/services/financial-state/financial-state.persistence";
 
-/** GET — list canonical FinancialEvent rows for a user */
-export async function GET(request: Request) {
-  return withApiHandler(async () => {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("user_id") ?? DEFAULT_USER_ID;
+/** GET — list canonical FinancialEvent rows for the signed-in user */
+export async function GET() {
+  return withAuthenticatedHandler(async (userId) => {
     const events = await financialStatePersistence.listEvents(userId);
     return jsonSuccess({
       user_id: userId,
@@ -22,9 +19,12 @@ export async function GET(request: Request) {
 
 /** POST — create canonical FinancialEvent */
 export async function POST(request: Request) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const body = (await request.json()) as CreateFinancialEventInput;
-    const event = await financialStatePersistence.createEvent(body);
+    const event = await financialStatePersistence.createEvent({
+      ...body,
+      user_id: userId,
+    });
     return jsonSuccess({ event: serializeFinancialEvent(event) }, { status: 201 });
   });
 }

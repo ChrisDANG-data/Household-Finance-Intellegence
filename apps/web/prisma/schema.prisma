@@ -42,9 +42,21 @@ enum FinancialEventOwner {
   joint
 }
 
+/// Auth — household users (username + password hash; never store plaintext passwords)
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
 /// Document Intelligence — uploaded files and extracted raw text
 model Document {
   id               String           @id @default(cuid())
+  userId           String           @default("default") @map("user_id")
   filename         String
   mimeType         String
   sizeBytes        Int
@@ -58,6 +70,7 @@ model Document {
   financialEvents  FinancialEvent[]
   chunks           DocumentChunk[]
 
+  @@index([userId])
   @@index([createdAt])
 }
 
@@ -106,6 +119,7 @@ model FinancialEvent {
 /// Financial State — user-managed obligations (MVP ledger UI; maps to events for summaries)
 model FinancialObligation {
   id               String    @id @default(cuid())
+  userId           String    @default("default") @map("user_id")
   name             String
   category         String    @default("general")
   amount           Decimal   @db.Decimal(12, 2)
@@ -119,6 +133,7 @@ model FinancialObligation {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
+  @@index([userId])
   @@index([startDate])
   @@index([sourceDocumentId])
 }

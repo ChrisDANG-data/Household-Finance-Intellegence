@@ -38,6 +38,7 @@ export interface EmbeddingRecord {
 export interface DocumentRagQuery {
   query: string;
   householdId?: string;
+  userId?: string;
   topK?: number;
   filters?: Record<string, unknown>;
 }

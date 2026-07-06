@@ -198,10 +198,11 @@ function monthKeyFromDate(date: Date): string {
  */
 export async function tryCategoryCoverageAnswer(
   message: string,
+  userId: string = DEFAULT_USER_ID,
 ): Promise<string | null> {
   if (!isCoveragePeriodQuestion(message)) return null;
 
-  const state = await financialStatePersistence.loadState(DEFAULT_USER_ID);
+  const state = await financialStatePersistence.loadState(userId);
   let matches = state.events.filter((e) => eventMatchesQuery(e, message));
   matches = dedupeEvents(matches);
 
@@ -237,10 +238,11 @@ export async function tryCategoryCoverageAnswer(
  */
 export async function tryLastPaymentDateAnswer(
   message: string,
+  userId: string = DEFAULT_USER_ID,
 ): Promise<string | null> {
   if (!isLastPaymentDateQuestion(message)) return null;
 
-  const state = await financialStatePersistence.loadState(DEFAULT_USER_ID);
+  const state = await financialStatePersistence.loadState(userId);
   let matches = state.events.filter((e) => eventMatchesQuery(e, message));
   matches = dedupeEvents(matches);
 
@@ -261,6 +263,7 @@ export async function tryLastPaymentDateAnswer(
  */
 export async function tryCategoryPaymentAnswer(
   message: string,
+  userId: string = DEFAULT_USER_ID,
 ): Promise<string | null> {
   if (
     /\b(can i afford|could i afford|afford another|do i have enough|what if)\b/i.test(
@@ -276,7 +279,7 @@ export async function tryCategoryPaymentAnswer(
 
   const targetMonth = extractTargetMonth(message);
   const state = await financialStatePersistence.loadState(
-    DEFAULT_USER_ID,
+    userId,
     targetMonth ?? undefined,
   );
 

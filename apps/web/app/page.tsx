@@ -7,6 +7,7 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { HomeAuthGate } from "@/components/home/HomeAuthGate";
 import { HomeFeatureCard } from "@/components/home/HomeFeatureCard";
 import { HomeHeroWave } from "@/components/home/HomeHeroWave";
 
@@ -43,6 +44,14 @@ const FEATURES = [
 ] as const;
 
 export default function HomePage() {
+  return (
+    <HomeAuthGate>
+      <HomePageContent />
+    </HomeAuthGate>
+  );
+}
+
+function HomePageContent() {
   return (
     <div className="fi-home-page">
       <section className="fi-cloudme-hero relative overflow-hidden pb-28 pt-28 sm:pb-36 sm:pt-32">

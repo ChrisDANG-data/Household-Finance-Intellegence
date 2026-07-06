@@ -1,18 +1,13 @@
+import { withAuthenticatedHandler } from "@/lib/api/authenticated-handler";
+import { jsonSuccess } from "@/utils/api-response";
 import { plaidAccountsService } from "@/services/integrations/plaid/plaid-accounts.service";
-import { DEFAULT_USER_ID } from "@/services/financial-state/financial-state.persistence";
-import { jsonError, jsonSuccess } from "@/utils/api-response";
-import { toAppError } from "@/utils/errors";
 
-/** GET — live Plaid balances per account (credit card, checking, etc.) */
+/** GET — live Plaid accounts for the signed-in user */
 export async function GET(request: Request) {
-  try {
+  return withAuthenticatedHandler(async (userId) => {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("user_id") ?? DEFAULT_USER_ID;
-    const q = searchParams.get("q") ?? searchParams.get("account") ?? undefined;
-
+    const q = searchParams.get("q") ?? undefined;
     const result = await plaidAccountsService.listLiveAccounts(userId, q);
     return jsonSuccess(result);
-  } catch (error) {
-    return jsonError(toAppError(error));
-  }
+  });
 }

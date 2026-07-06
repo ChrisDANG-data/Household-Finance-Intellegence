@@ -86,11 +86,17 @@ interface DocumentAnswer {
  * Query FinancialEvent and FinancialObligation tables for all financial data.
  * Deduplicates obligations that already have a corresponding event.
  */
-async function getFinancialContext(): Promise<string> {
+async function getFinancialContext(userId: string): Promise<string> {
   try {
     const [events, obligations] = await Promise.all([
-      prisma.financialEvent.findMany({ orderBy: { startDate: "asc" } }),
-      prisma.financialObligation.findMany({ orderBy: { startDate: "asc" } }),
+      prisma.financialEvent.findMany({
+        where: { userId },
+        orderBy: { startDate: "asc" },
+      }),
+      prisma.financialObligation.findMany({
+        where: { userId },
+        orderBy: { startDate: "asc" },
+      }),
     ]);
 
     if (events.length === 0 && obligations.length === 0) return "";
@@ -153,10 +159,11 @@ async function getFinancialContext(): Promise<string> {
 
 async function tryRagDocumentAnswer(
   message: string,
+  userId: string,
   provider?: AiProvider,
 ): Promise<string | null> {
   const rag = await loadDocumentRagService();
-  const ragAnswer = await rag.ask(message, { topK: 5, provider });
+  const ragAnswer = await rag.ask(message, { topK: 5, provider, userId });
   if (ragAnswer.answer.toLowerCase().includes("not found")) {
     return null;
   }
@@ -169,18 +176,19 @@ async function tryRagDocumentAnswer(
  */
 async function tryDocumentAnswer(
   message: string,
+  userId: string,
   provider?: AiProvider,
 ): Promise<DocumentAnswer | null> {
   try {
-    const deterministic = await tryDeterministicLedgerAnswer(message);
+    const deterministic = await tryDeterministicLedgerAnswer(message, { userId });
     if (deterministic) {
       return { answer: deterministic, hasDocumentContext: true };
     }
 
     const ragService = await loadDocumentRagService();
     const [ragResult, financialContext] = await Promise.all([
-      ragService.retrieve({ query: message, topK: 5 }),
-      getFinancialContext(),
+      ragService.retrieve({ query: message, topK: 5, userId }),
+      getFinancialContext(userId),
     ]);
 
     const relevant = ragResult.chunks.filter((c) => c.score > 0.2);
@@ -194,7 +202,7 @@ async function tryDocumentAnswer(
       relevant.length > 0 &&
       shouldPreferDocumentRag(message, topChunkScore)
     ) {
-      const ragAnswer = await tryRagDocumentAnswer(message, provider);
+      const ragAnswer = await tryRagDocumentAnswer(message, userId, provider);
       if (ragAnswer) {
         return { answer: ragAnswer, hasDocumentContext: true };
       }
@@ -245,7 +253,7 @@ OUTPUT FORMAT:
         const trimmed = text.trim();
         if (/NOT_A_LEDGER/i.test(trimmed)) {
           if (relevant.length > 0) {
-            const ragAnswer = await tryRagDocumentAnswer(message, provider);
+            const ragAnswer = await tryRagDocumentAnswer(message, userId, provider);
             if (ragAnswer) {
               return { answer: ragAnswer, hasDocumentContext: true };
             }
@@ -254,7 +262,7 @@ OUTPUT FORMAT:
         }
         return { answer: trimmed || "Not found.", hasDocumentContext: true };
       } catch (err) {
-        const fallback = await tryCategoryPaymentAnswer(message);
+        const fallback = await tryCategoryPaymentAnswer(message, userId);
         if (fallback) {
           return { answer: fallback, hasDocumentContext: true };
         }
@@ -272,7 +280,7 @@ OUTPUT FORMAT:
     }
 
     if (relevant.length > 0) {
-      const ragAnswer = await tryRagDocumentAnswer(message, provider);
+      const ragAnswer = await tryRagDocumentAnswer(message, userId, provider);
       if (ragAnswer) {
         return { answer: ragAnswer, hasDocumentContext: true };
       }
@@ -355,6 +363,7 @@ export async function handleScenarioMessage(
       state: input.financial_state,
       startMonth,
       forecastMonths: months,
+      userId: input.user_id,
     },
   );
   if (deterministicAnswer) {
@@ -442,6 +451,7 @@ export async function handleScenarioMessage(
   if (!useLangGraphRoute) {
     const docAnswer = await tryDocumentAnswer(
       input.message,
+      input.user_id,
       input.ai_provider,
     );
 

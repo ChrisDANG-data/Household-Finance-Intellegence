@@ -1,5 +1,5 @@
+import { withAuthenticatedHandler } from "@/lib/api/authenticated-handler";
 import { jsonSuccess } from "@/utils/api-response";
-import { withApiHandler } from "@/lib/api/route-handler";
 import { documentRagService } from "@/services/document-intelligence/indexing/rag.service";
 import { AppError } from "@/utils/errors";
 
@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 
 /** POST — Ask a question about uploaded documents using RAG */
 export async function POST(request: Request) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const body = await request.json();
     const { question, topK, ai_provider } = body;
 
@@ -24,6 +24,7 @@ export async function POST(request: Request) {
         ai_provider === "gemini" || ai_provider === "claude"
           ? ai_provider
           : undefined,
+      userId,
     });
 
     return jsonSuccess(result);

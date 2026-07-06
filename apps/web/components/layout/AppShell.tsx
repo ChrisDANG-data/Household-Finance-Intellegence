@@ -9,6 +9,11 @@ import { cn } from "@/lib/utils";
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const onHero = pathname === "/";
+  const onLogin = pathname === "/login";
+
+  if (onLogin) {
+    return <>{children}</>;
+  }
 
   return (
     <AiProviderProvider>

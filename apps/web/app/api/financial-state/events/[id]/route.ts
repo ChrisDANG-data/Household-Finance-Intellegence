@@ -1,5 +1,5 @@
+import { withAuthenticatedHandler } from "@/lib/api/authenticated-handler";
 import { jsonSuccess } from "@/utils/api-response";
-import { withApiHandler } from "@/lib/api/route-handler";
 import { serializeFinancialEvent } from "@/lib/serializers/financial-state";
 import {
   financialStatePersistence,
@@ -11,9 +11,9 @@ export async function GET(
   _request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const { id } = await context.params;
-    const event = await financialStatePersistence.getEvent(id);
+    const event = await financialStatePersistence.getEvent(id, userId);
     return jsonSuccess({ event: serializeFinancialEvent(event) });
   });
 }
@@ -23,10 +23,10 @@ export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const { id } = await context.params;
     const body = (await request.json()) as UpdateFinancialEventInput;
-    const event = await financialStatePersistence.updateEvent(id, body);
+    const event = await financialStatePersistence.updateEvent(id, body, userId);
     return jsonSuccess({ event: serializeFinancialEvent(event) });
   });
 }
@@ -36,9 +36,9 @@ export async function DELETE(
   _request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const { id } = await context.params;
-    await financialStatePersistence.deleteEvent(id);
+    await financialStatePersistence.deleteEvent(id, userId);
     return jsonSuccess({ deleted: true });
   });
 }

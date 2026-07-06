@@ -11,14 +11,17 @@
             "id": "5396d30522773b89",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "01_Architecture/N8N_EVAL_SETUP.md",
-                "mode": "source",
-                "source": false
+                "file": "Presentation/Full Presentation.canvas",
+                "viewState": {
+                  "x": -30,
+                  "y": -2640,
+                  "zoom": -0.6381710945544747
+                }
               },
-              "icon": "lucide-file",
-              "title": "N8N_EVAL_SETUP"
+              "icon": "lucide-layout-dashboard",
+              "title": "Full Presentation"
             }
           }
         ]
@@ -53,7 +56,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "policy Term",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -74,12 +77,11 @@
               "title": "Bookmarks"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 277.5
+    "width": 216.5
   },
   "right": {
     "id": "31ced0e18e725510",
@@ -183,20 +185,32 @@
   },
   "active": "5396d30522773b89",
   "lastOpenFiles": [
+    "Backend intro for presentation.canvas",
+    "Presentation/Full Presentation.canvas",
+    "Presentation/Frontend intro for presentation.canvas",
+    "Presentation/ai Pipeline.canvas",
+    "Backend.canvas",
+    "Frontend.canvas",
+    "Presentation/automation.canvas",
+    "Presentation/Untitled.md",
+    "README.md",
+    "Household/Categories/car-insurance.md",
+    "00_Dashboard/Project Dashboard.md",
+    "Household/Categories/business-insurance.md",
+    "01_Architecture/N8N_EVAL_SETUP.md",
+    "Presentation",
     "Household/Documents/369b6c12-b101-4341-b16a-159bb550e222.md",
     "Household/Documents/47a56c7a-66b8-4bbf-af8d-8727532fdcbe.md",
     "Household/Documents/7f15565f-460c-421a-bd13-e4cba392eec1.md",
     "Household/Documents/a2604572-9abc-420b-9234-7e9d51a2dd58.md",
     "Household/Documents/251220e9-691e-4de6-b4e7-72028f0876ea.md",
     "Household/Events/cmqraqoy90003la042ufh02w7.md",
-    "Household/Categories/business-insurance.md",
     "Household/Documents/03751ab4-58d5-4cb3-bff0-4207aa31e23e.md",
     "Household/Events/cmqr9rhxv000fkw04kcg0s2uh.md",
     "Household/Events/cmqr9rhyf000jkw04fsyn1pty.md",
     "Household/README.md",
     "Household/Documents/0bcd0c81-05a2-486f-b0ac-ebba50315dee.md",
     "Household/Categories/house-insurance.md",
-    "Untitled 2.canvas",
     "Household/Events/cmqr9rhws0007kw04ckux9zu1.md",
     "Household/Events/cmqr9rhxc000bkw04yx867elf.md",
     "Household/Events/cmqr9rhvx0003kw04ds4cp0gg.md",
@@ -204,17 +218,9 @@
     "Household/Documents/bc2d54b0-0a27-4d4d-9dc5-bd6e65f3646e.md",
     "Household/Documents/b16f6db8-e874-498a-8ba3-5f55d2bf7f85.md",
     "Household/Documents/785e2b7b-b1cf-4e1f-a0a8-4f34ee6e193f.md",
-    "Household/Events/cmqr34f7e0003i704why32icv.md",
-    "Household/Events/cmqr34f8c0007i704oczg7dsn.md",
-    "Household/Events/cmqr34f94000bi704hl38kbex.md",
-    "Household/Events/cmqr34f9x000fi704d9fa7rmv.md",
-    "Household/Events/cmqr34fap000ji704guns3fzk.md",
-    "00_Dashboard/Project Dashboard.md",
-    "Untitled.canvas",
     "Household/Ledger",
     "Household/Events",
     "Household/Categories",
-    "Household/Documents",
-    "Untitled 1.canvas"
+    "Household/Documents"
   ]
 }

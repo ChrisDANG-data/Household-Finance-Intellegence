@@ -82,7 +82,6 @@ export function PlaidBankActions({ onLinked, refreshKey = 0 }: PlaidBankActionsP
     setError(null);
     try {
       const { link_token } = await createPlaidLinkToken({
-        client_user_id: "default",
         products: ["transactions"],
       });
       setLinkToken(link_token);

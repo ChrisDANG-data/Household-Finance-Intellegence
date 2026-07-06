@@ -1,5 +1,5 @@
+import { withAuthenticatedHandler } from "@/lib/api/authenticated-handler";
 import { jsonSuccess } from "@/utils/api-response";
-import { withApiHandler } from "@/lib/api/route-handler";
 import { documentRepository } from "@/services/document-intelligence/document.repository";
 import { AppError } from "@/utils/errors";
 import type { DocumentMimeType } from "@/types/documents";
@@ -10,15 +10,15 @@ export const maxDuration = 120;
 
 /** GET — list uploaded documents */
 export async function GET() {
-  return withApiHandler(async () => {
-    const documents = await documentRepository.list();
+  return withAuthenticatedHandler(async (userId) => {
+    const documents = await documentRepository.list(userId);
     return jsonSuccess({ documents });
   });
 }
 
 /** POST — upload PDF/image, extract and store raw text */
 export async function POST(request: Request) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const formData = await request.formData();
     const file = formData.get("file");
 
@@ -44,11 +44,14 @@ export async function POST(request: Request) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const result = await documentRepository.upload({
-      filename: file.name || "upload",
-      mimeType: mimeType as DocumentMimeType,
-      buffer,
-    });
+    const result = await documentRepository.upload(
+      {
+        filename: file.name || "upload",
+        mimeType: mimeType as DocumentMimeType,
+        buffer,
+      },
+      userId,
+    );
 
     return jsonSuccess(
       {

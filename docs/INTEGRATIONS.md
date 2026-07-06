@@ -9,6 +9,21 @@ This project now supports:
 
 All canonical writes must remain inside `apps/web/services/financial-state/`.
 
+## Security & privacy (Tier 1)
+
+See **[PRIVACY.md](./PRIVACY.md)** for full detail. On **Vercel**, set before using real household data:
+
+| Env | Purpose |
+|-----|---------|
+| `AUTH_SECRET` | Signs household session cookies |
+| `TOKEN_ENCRYPTION_KEY` | AES-256-GCM for Plaid `access_token` at rest |
+| `AUTOMATION_WEBHOOK_TOKEN` | Required Bearer token for n8n/Telegram routes (fail closed in prod) |
+| `AUTH_ALLOW_REGISTRATION` | `true` to allow sign-up UI; `false` on prod after users exist |
+
+Create users via **Create account** on the home page (local) or `npx tsx scripts/create-user.ts <user> <pass>`.
+
+Local dev: auth and encryption are **off by default**. Enable with `AUTH_ENABLED=true` and the vars above.
+
 ## Document file storage (Vercel Blob)
 
 Uploaded PDFs/images are stored in **object storage**; Postgres holds metadata, extracted text, and embeddings only.

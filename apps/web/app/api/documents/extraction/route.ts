@@ -1,9 +1,10 @@
+import { withAuthenticatedHandler } from "@/lib/api/authenticated-handler";
 import { jsonSuccess } from "@/utils/api-response";
-import { withApiHandler } from "@/lib/api/route-handler";
 import {
   documentExtractionService,
   type ExtractedObligation,
 } from "@/services/document-intelligence/extraction/document-extraction.service";
+import { documentRepository } from "@/services/document-intelligence/document.repository";
 import { AppError } from "@/utils/errors";
 
 export const runtime = "nodejs";
@@ -27,7 +28,7 @@ interface ExtractionBody {
  * 2. Call with { documentId, confirm: true, obligations: [...] } → saves to DB
  */
 export async function POST(request: Request) {
-  return withApiHandler(async () => {
+  return withAuthenticatedHandler(async (userId) => {
     const body = (await request.json()) as ExtractionBody;
     if (!body?.documentId) {
       throw new AppError("documentId is required", {
@@ -35,6 +36,8 @@ export async function POST(request: Request) {
         statusCode: 400,
       });
     }
+
+    await documentRepository.getById(body.documentId, userId);
 
     if (body.confirm) {
       const obligations =
