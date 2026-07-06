@@ -5,6 +5,16 @@ import path from "node:path";
 const monorepoRoot = path.resolve(__dirname, "../..");
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_AUTH_ENABLED:
+      process.env.AUTH_ENABLED?.trim().toLowerCase() === "true"
+        ? "true"
+        : process.env.AUTH_ENABLED?.trim().toLowerCase() === "false"
+          ? "false"
+          : process.env.VERCEL === "1"
+            ? "true"
+            : "false",
+  },
   serverExternalPackages: [
     "pdf-parse",
     "tesseract.js",

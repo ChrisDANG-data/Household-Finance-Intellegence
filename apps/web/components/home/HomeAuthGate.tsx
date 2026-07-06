@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { LoginForm } from "@/components/auth/LoginForm";
 import { AUTH_SESSION_CHANGED_EVENT } from "@/lib/auth/auth-events";
+import { isClientAuthEnabled } from "@/lib/auth/client-config";
 
 type SessionState = {
   authEnabled: boolean;
@@ -12,6 +13,16 @@ type SessionState = {
   registrationAllowed: boolean;
   hasUsers: boolean;
 };
+
+function guestSession(): SessionState {
+  return {
+    authEnabled: isClientAuthEnabled(),
+    authenticated: false,
+    user: null,
+    registrationAllowed: isClientAuthEnabled(),
+    hasUsers: true,
+  };
+}
 
 export function HomeAuthGate({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<SessionState | null>(null);
@@ -22,23 +33,22 @@ export function HomeAuthGate({ children }: { children: React.ReactNode }) {
     async function loadSession() {
       try {
         const response = await fetch("/api/auth/session", { cache: "no-store" });
+        if (!response.ok) {
+          if (!cancelled) setSession(guestSession());
+          return;
+        }
+
         const payload = (await response.json()) as {
           success?: boolean;
           data?: SessionState;
         };
-        if (!cancelled && payload.success && payload.data) {
-          setSession(payload.data);
+        if (!cancelled) {
+          setSession(
+            payload.success && payload.data ? payload.data : guestSession(),
+          );
         }
       } catch {
-        if (!cancelled) {
-          setSession({
-            authEnabled: false,
-            authenticated: true,
-            user: null,
-            registrationAllowed: false,
-            hasUsers: true,
-          });
-        }
+        if (!cancelled) setSession(guestSession());
       }
     }
 
@@ -56,6 +66,20 @@ export function HomeAuthGate({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (!session) {
+    if (isClientAuthEnabled()) {
+      return (
+        <div className="fi-home-page">
+          <section className="fi-cloudme-hero relative flex min-h-[85vh] items-center overflow-hidden pb-20 pt-28">
+            <div className="relative z-10 mx-auto w-full max-w-6xl px-4 sm:px-8">
+              <div className="mt-8">
+                <LoginForm showRegister defaultMode="signin" />
+              </div>
+            </div>
+          </section>
+        </div>
+      );
+    }
+
     return (
       <div className="fi-home-page flex min-h-[60vh] items-center justify-center text-muted-foreground">
         Loading…

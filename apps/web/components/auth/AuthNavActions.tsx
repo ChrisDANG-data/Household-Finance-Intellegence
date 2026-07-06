@@ -9,6 +9,7 @@ import {
   AUTH_SESSION_CHANGED_EVENT,
   notifyAuthSessionChanged,
 } from "@/lib/auth/auth-events";
+import { isClientAuthEnabled } from "@/lib/auth/client-config";
 import { cn } from "@/lib/utils";
 
 type SessionState = {
@@ -19,6 +20,8 @@ type SessionState = {
 
 async function fetchSessionState(): Promise<SessionState | null> {
   const response = await fetch("/api/auth/session", { cache: "no-store" });
+  if (!response.ok) return null;
+
   const payload = (await response.json()) as {
     success?: boolean;
     data?: SessionState;
@@ -29,6 +32,14 @@ async function fetchSessionState(): Promise<SessionState | null> {
   return null;
 }
 
+function fallbackSession(): SessionState {
+  return {
+    authEnabled: isClientAuthEnabled(),
+    authenticated: false,
+    user: null,
+  };
+}
+
 export function AuthNavActions({ onHero }: { onHero: boolean }) {
   const router = useRouter();
   const [session, setSession] = useState<SessionState | null>(null);
@@ -37,9 +48,9 @@ export function AuthNavActions({ onHero }: { onHero: boolean }) {
   const loadSession = useCallback(async () => {
     try {
       const data = await fetchSessionState();
-      if (data) setSession(data);
+      setSession(data ?? fallbackSession());
     } catch {
-      setSession({ authEnabled: false, authenticated: false, user: null });
+      setSession(fallbackSession());
     }
   }, []);
 
@@ -68,7 +79,7 @@ export function AuthNavActions({ onHero }: { onHero: boolean }) {
       setSession((prev) =>
         prev
           ? { ...prev, authenticated: false, user: null }
-          : { authEnabled: true, authenticated: false, user: null },
+          : { ...fallbackSession(), authEnabled: true },
       );
       notifyAuthSessionChanged();
       router.replace("/");
@@ -78,16 +89,26 @@ export function AuthNavActions({ onHero }: { onHero: boolean }) {
     }
   }, [router]);
 
-  if (!session?.authEnabled) {
-    return null;
-  }
-
   const buttonClass = cn(
     "inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition-colors",
     onHero
       ? "text-white/90 hover:bg-white/12 hover:text-white"
       : "text-muted-foreground hover:bg-emerald-500/10 hover:text-foreground",
   );
+
+  if (session === null) {
+    if (!isClientAuthEnabled()) return null;
+    return (
+      <Link href="/" className={buttonClass}>
+        <LogIn className="size-3.5" />
+        <span className="hidden sm:inline">Sign in</span>
+      </Link>
+    );
+  }
+
+  if (!session.authEnabled) {
+    return null;
+  }
 
   if (!session.authenticated) {
     return (

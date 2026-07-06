@@ -24,6 +24,27 @@ Create users via **Create account** on the home page (local) or `npx tsx scripts
 
 Local dev: auth and encryption are **off by default**. Enable with `AUTH_ENABLED=true` and the vars above.
 
+### Vercel — enable login on production
+
+If https://household-financial-web.vercel.app shows no Sign in / login form after a git push:
+
+1. **Project → Settings → General → Root Directory** must be `apps/web` (not repo root).
+2. **Deployments** — confirm the latest deployment is commit `26db972` or newer (auth routes). If not, open **Deployments → Redeploy** on `main`.
+3. **Settings → Environment Variables** (Production):
+
+```env
+AUTH_SECRET=<random 32+ characters>
+TOKEN_ENCRYPTION_KEY=<32-byte base64 or 64-char hex>
+AUTOMATION_WEBHOOK_TOKEN=<random token for n8n>
+AUTH_ALLOW_REGISTRATION=true
+```
+
+4. After redeploy, verify:
+   - `GET /api/auth/session` → JSON (not 404 HTML)
+   - `GET /api/health` → `"auth": { "enabled": true }`
+
+Without `AUTH_SECRET`, login API calls fail even when the UI appears.
+
 ## Document file storage (Vercel Blob)
 
 Uploaded PDFs/images are stored in **object storage**; Postgres holds metadata, extracted text, and embeddings only.
