@@ -10,9 +10,7 @@
 
 **Live app:** https://household-financial-web.vercel.app
 
-<!-- Add screenshots for maximum recruiter impact:
-     docs/images/home.png, ledger.png, documents-review.png, scenario-chat.png -->
-<!-- ![Home](docs/images/home.png) -->
+![Home — Household Financial Intelligence](docs/images/home.png)
 
 ---
 
@@ -108,6 +106,14 @@ Full detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 | **Forecast** | `/simulation` | 6-month cash-flow charts, what-if scenarios |
 | **Scenario chat** | `/scenario` | Natural-language Q&A — engines compute, AI explains |
 | **Auth** | `/login` | Per-user sessions; data isolated by `userId` |
+
+| Ledger | Documents |
+|:------:|:---------:|
+| ![Ledger](docs/images/ledger.png) | ![Documents](docs/images/documents-review.png) |
+
+| Forecast + Ask AI | n8n / Telegram automation |
+|:-----------------:|:-------------------------:|
+| ![Scenario chat](docs/images/scenario-chat.png) | ![n8n](docs/images/n8n.png) |
 
 ### 60-second demo path
 
@@ -275,16 +281,9 @@ Full checklist: [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md) (Vercel env vars se
 
 ## Screenshots
 
-Add 2–4 PNGs under `docs/images/` and uncomment the hero image above:
+Screenshots live in [`docs/images/`](docs/images/). The **hero** (home page) is at the top of this README; the gallery under **Feature tour** shows ledger, documents, forecast/Ask AI, and n8n automation.
 
-| File | Suggested capture |
-|------|-------------------|
-| `docs/images/home.png` | Landing page with feature cards |
-| `docs/images/ledger.png` | Recorded events with Partner A/B badges |
-| `docs/images/documents-review.png` | Review payments dialog with Owner column |
-| `docs/images/scenario-chat.png` | Forecast + natural-language Q&A |
-
-See [docs/images/README.md](docs/images/README.md).
+See [docs/images/README.md](docs/images/README.md) to replace or add captures.
 
 ---
 

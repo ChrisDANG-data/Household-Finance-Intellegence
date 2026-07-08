@@ -1,22 +1,39 @@
 # Screenshots for GitHub README
 
-Add PNG or WebP captures here to make the repo stand out to recruiters.
+These PNGs appear in the root [README.md](../../README.md).
 
-## Recommended captures
+## What is a “hero image”?
 
-1. **home.png** — Landing page (`/`)
-2. **ledger.png** — Ledger with Partner A/B owner badges (`/ledger`)
-3. **documents-review.png** — Review payments dialog with Owner dropdown (`/documents`)
-4. **scenario-chat.png** — Scenario chat with forecast context (`/scenario`)
+The **hero** is the large screenshot at the **top** of the README (right under the live app link). Recruiters see it first — usually the landing page or the most impressive screen.
 
-## How to add
+In this repo the hero is:
 
-1. Take screenshots (1440×900 or 1280×800 works well).
-2. Save files in this folder.
-3. In the root [README.md](../../README.md), uncomment the hero image line and add a small gallery if you like.
+```markdown
+![Home — Household Financial Intelligence](docs/images/home.png)
+```
+
+The **gallery** is the smaller 2×2 grid under **Feature tour** (ledger, documents, forecast, n8n).
+
+## Files in this folder
+
+| File | Used as | Capture |
+|------|---------|---------|
+| `home.png` | Hero (top of README) | Landing page (`/`) |
+| `ledger.png` | Gallery | Ledger with Partner A/B (`/ledger`) |
+| `documents-review.png` | Gallery | Upload / review documents (`/documents`) |
+| `scenario-chat.png` | Gallery | Forecast + Ask AI (`/simulation` or `/scenario`) |
+| `n8n.png` | Gallery | n8n / Telegram automation workflow |
+
+## How to update a screenshot
+
+1. Open the live app (or `npm run dev`) with **sanitized** demo data.
+2. Capture the screen (Windows: `Win+Shift+S`, or full window screenshot).
+3. Overwrite the matching file above (keep the same filename).
+4. Commit and push — GitHub README updates automatically.
 
 ## Tips
 
-- Use a demo account with **sanitized** data (no real account numbers or personal bills).
-- Dark mode vs light mode: pick one and stay consistent.
-- A 60–90s screen recording (Loom/YouTube) linked from the README is even stronger than static shots alone.
+- Prefer ~1280–1440px wide; avoid huge files (>1 MB if possible).
+- Use one theme (light or dark) consistently.
+- Never include real account numbers, SSNs, or personal bills.
+- A 60–90s Loom/YouTube demo linked from the README is even stronger than static shots alone.
