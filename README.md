@@ -20,9 +20,17 @@ Household money lives in spreadsheets, bank apps, and PDF folders. Generic chatb
 
 **Core design rule:** *AI never calculates money.*
 
+### Questions this app answers
+
+1. **Has my asset last year beaten inflation?**
+2. **How much contributions have been made into RESP, TFSA, RRSP?**
+3. **Do I have enough cash for upcoming installment of property tax?**
+
 | Question | How it's answered |
 |----------|-------------------|
-| "What did we spend on insurance in May?" | Deterministic ledger lookup |
+| "Has my asset last year beaten inflation?" | Ledger + investment balances vs inflation context |
+| "How much into RESP, TFSA, RRSP?" | Investment / contribution totals from ledger & manual accounts |
+| "Enough cash for property tax installment?" | Forecast + disposable assets + obligation lookup |
 | "Can we afford a $20K trip in July?" | Forecast engine + advisor narration |
 | "What's in our house insurance policy?" | Document RAG over uploaded PDFs |
 | "What's Partner B's monthly income?" | Owner-scoped ledger query |
