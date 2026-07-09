@@ -10,7 +10,7 @@
 
 **Live app:** https://household-financial-web.vercel.app
 
-**Slides:** [Google Slides](https://docs.google.com/presentation/d/1kIrrg-30TM1GRJpX7u-ojIKacxlEQRVO/view?usp=sharing) · [PPT in repo](Presentation/Household_Financial_Intelligence.pptx) · [Q&A](Presentation/PRESENTATION_QA.md)
+**Slides:** [Google Slides](https://docs.google.com/presentation/d/1kIrrg-30TM1GRJpX7u-ojIKacxlEQRVO/view?usp=sharing)
 
 **Demo video:** [Watch walkthrough](https://youtu.be/Y40ZPdR7c7w)
 
